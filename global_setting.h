@@ -8,6 +8,8 @@
 
 #define PLATFORM_WINDOWS
 
+#define INVALID_VALUE -1
+
 extern HANDLE heap_handle;
 
 #endif

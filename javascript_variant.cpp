@@ -1,5 +1,6 @@
 
 #include <memory.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -84,11 +85,11 @@ unsigned long get_variant_index(string& variant_name) {
          ++variant_table_iterator,++index)
         if (variant_name==variant_table_iterator->first)
             return index;
-    return -1;
+    return INVALID_VALUE;
 }
 
 bool is_exist_variant(string& variant_name) {
-    if (-1!=get_variant_index(variant_name))
+    if (INVALID_VALUE!=get_variant_index(variant_name))
         return true;
     return false;
 }
@@ -138,21 +139,22 @@ bool get_variant(string variant_name,void* output_variant_data,support_javascrip
     return false;
 }
 
-/*
-    Support JavaScript :
-    var var_name=expression;      -> var var_name=eval(expression)
-    var_name.substr();
+bool copy_variant(string source_variant_name,string destination_variant_name) {
+    if (!is_exist_variant(destination_variant_name))
+        return false;
+    unsigned long variant_data=0;
+    support_javascript_variant_type variant_type=NONE;
+    get_variant(destination_variant_name,(void*)&variant_data,&variant_type);
+    set_variant(source_variant_name,(void*)variant_data,variant_type);
+    return true;
+}
 
-    Support Expression :
-    + - * /
-    call();
-    new Array();                  -> HeapAlloc
+bool set_variant_array(string variant_name,unsigned long array_index,void* output_variant_data,support_javascript_variant_type* output_variant_type) {
+    //
+}
 
-    Support Var Function :
-    var_name.substr(l,b);
-    var_name[1];
-    var_name.attribute=?????;
-*/
+bool set_variant_array(string variant_name,unsigned long array_index,void* output_variant_data,support_javascript_variant_type* output_variant_type) {
+}
 
 static void trim(string& input_string) {
     for (string::iterator index =input_string.begin();
@@ -176,16 +178,70 @@ static void trim(string& input_string) {
         input_string.erase((++input_string.rbegin()).base());
 }
 
-static is_calculation_express(string& express) {
+/*
+    Support JavaScript :
+    var var_name=expression;      -> var var_name=eval(expression)
+    var_name.substr();
+
+    Support Expression :
+    + - * /
+    call();
+    new Array();                  -> HeapAlloc
+
+    Support Var Function :
+    var_name.substr(l,b);
+    var_name[1];
+    var_name.attribute=?????;
+*/
+
+enum express_type {
+    EXPRESSION_NUMBER_DECIMAL=0,
+    EXPRESSION_NUMBER_HEX,
+    EXPRESSION_STRING,
+    EXPRESSION_UNKNOW
+};
+
+static express_type get_express_type(string& express) {
+    if ('\''==express[0] && '\''==express[express.length()-1]) {
+        return EXPRESSION_STRING;
+    } else if (atoi(express.c_str()) || ('0'==express[0] && 1==express.length())) {
+        return EXPRESSION_NUMBER_DECIMAL;
+    } else if (('0'==express[0] && 'x'==express[1]) || ('x'==express[0])) {
+        string number(express.substr(2));
+        if (atoi(number.c_str()))
+            return EXPRESSION_NUMBER_HEX;
+    }
+    return EXPRESSION_UNKNOW;
 }
 
-static is_function_call(string& express) {
+static bool is_calculation_express(string& express) {
+    //  WARNING !!! 
+    if (INVALID_VALUE!=express.find("+")) {
+    } else if (INVALID_VALUE!=express.find("-")) {
+    } else if (INVALID_VALUE!=express.find("*")) {
+    } else if (INVALID_VALUE!=express.find("/")) {
+    }
+    return false;
 }
 
-bool express_calcu(string express) {
+static bool is_function_call(string& express) {
+    return false;
+}
+
+bool express_calcu(string express,javascript_variant_struct* output_result) {
     trim(express);
     if (is_calculation_express(express)) {
     } else if (is_function_call(express)) {
+    }
+    express_type express_type_=get_express_type(express);
+    if (EXPRESSION_UNKNOW!=express_type_) {
+        if (EXPRESSION_NUMBER_DECIMAL==express_type_)
+            set_variant("_calcu_temp_variant_",atoi(express.c_str()),NUMBER);
+        else if (EXPRESSION_NUMBER_HEX==express_type_)
+            set_variant("_calcu_temp_variant_",hex(express.c_str()),NUMBER);
+        else if (EXPRESSION_STRING==express_type_)
+            set_variant("_calcu_temp_variant_",express.c_str(),STRING);
+        return true;
     }
     return false;
 }
@@ -194,9 +250,15 @@ bool init_envirment(void);
 
 void main(void) {
     init_envirment();
-    set_variant("test",(void*)"1234",STRING);
+    set_variant("string1",(void*)"1234",STRING);
+    set_variant("string2",(void*)"just test!",STRING);
+    copy_variant("string_copy","string2");
     long output_data=0;
     support_javascript_variant_type output_type=NONE;
-    get_variant("test",(void*)&output_data,&output_type);
-    printf("%s",output_data);
+    get_variant("string1",(void*)&output_data,&output_type);
+    printf("string1=%s\n",output_data);
+    get_variant("string2",(void*)&output_data,&output_type);
+    printf("string2=%s\n",output_data);
+    get_variant("string_copy",(void*)&output_data,&output_type);
+    printf("string_copy=%s\n",output_data);
 }

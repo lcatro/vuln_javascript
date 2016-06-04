@@ -1,0 +1,4 @@
+
+bool add_function() {
+}
+
