@@ -36,6 +36,7 @@
     var_name.attribute=?????;
 */
 
+HANDLE heap_handle=NULL;
 
 bool init_envirment(void) {
 #ifdef HEAP_EXECUTE_PROTECT
@@ -43,7 +44,8 @@ bool init_envirment(void) {
 #else
     heap_handle=HeapCreate(0,HEAP_LENGTH,0);
 #endif
-    if (INVALUD_HANELD_VALUE!=heap_handle)
+    if (NULL!=heap_handle)
         return true;
+    heap_handle=GetProcessHeap();
     return false;
 }

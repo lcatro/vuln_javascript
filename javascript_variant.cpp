@@ -10,6 +10,7 @@
 #include <oaidl.h>
 
 #include "global_setting.h"
+#include "javascript_base.h"
 
 using std::string;
 using std::map;
@@ -67,10 +68,11 @@ typedef map<string,javascript_variant_struct> global_javascript_variant_table_;
  */
 
 enum support_javascript_variant_type {
-    NUMBER=0;  //  VT_INT
-    STRING;    //  VT_BSTR
-    ARRAY;     //  VT_ARRAY
-    OBJECT     //  VT_STORED_OBJECT
+    NUMBER=0,  //  VT_INT
+    STRING,    //  VT_BSTR
+    ARRAY,     //  VT_ARRAY
+    OBJECT,    //  VT_STORED_OBJECT
+    NONE
 };
 
 global_javascript_variant_table_ global_javascript_variant_table;
@@ -93,36 +95,47 @@ bool is_exist_variant(string& variant_name) {
 
 void set_variant(string variant_name,void* variant_data,support_javascript_variant_type variant_type) {
     if (is_exist_variant(variant_name)) {
-        if (support_javascript_variant_type.STRING==global_javascript_variant_table[variant_name].vt) {
-            if (NULL!=global_javascript_variant_table[variant_name].bstrVal)
-                HeapFree(heap_handle,0,global_javascript_variant_table[variant_name].bstrVal);
-            global_javascript_variant_table[variant_name].wReserved3=strlen(variant_data);
-            global_javascript_variant_table[variant_name].bstrVal=HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,global_javascript_variant_table[variant_name].wReserved3);
-            memcpy(global_javascript_variant_table[variant_name].bstrVal,variant_data,global_javascript_variant_table[variant_name].wReserved3);
+        if (STRING==global_javascript_variant_table[variant_name].vt) {
+            if (NULL!=global_javascript_variant_table[variant_name].ulVal)
+                HeapFree(heap_handle,0,(void*)global_javascript_variant_table[variant_name].ulVal);
+            global_javascript_variant_table[variant_name].wReserved3=strlen((const char*)variant_data)+1;
+            global_javascript_variant_table[variant_name].ulVal=(unsigned long)HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,global_javascript_variant_table[variant_name].wReserved3);
+            memcpy((void*)global_javascript_variant_table[variant_name].ulVal,variant_data,global_javascript_variant_table[variant_name].wReserved3);
         }
     }
-    if (!strcmp("null",(const char*)variant_data)) {
-        global_javascript_variant_table[variant_name].vt=support_javascript_variant_type.NUMBER;
+    if (NONE==variant_type) {
+        global_javascript_variant_table[variant_name].vt=NUMBER;
         global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
-        global_javascript_variant_table[variant_name].intVal=0;
-    } else if (support_javascript_variant_type.NUMBER==variant_type) {
-        global_javascript_variant_table[variant_name].vt=support_javascript_variant_type.NUMBER;
+        global_javascript_variant_table[variant_name].ulVal=0;
+    } else if (NUMBER==variant_type) {
+        global_javascript_variant_table[variant_name].vt=NUMBER;
         global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
-        global_javascript_variant_table[variant_name].intVal=(int)variant_data;
-    } else if (support_javascript_variant_type.STRING==variant_type) {
-        global_javascript_variant_table[variant_name].vt=support_javascript_variant_type.STRING;
-        global_javascript_variant_table[variant_name].wReserved3=strlen(variant_data);
-        global_javascript_variant_table[variant_name].bstrVal=HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,global_javascript_variant_table[variant_name].wReserved3);
-        memcpy(global_javascript_variant_table[variant_name].bstrVal,variant_data,global_javascript_variant_table[variant_name].wReserved3);
-    } else if (support_javascript_variant_type.ARRAY==variant_type) {
-        global_javascript_variant_table[variant_name].vt=support_javascript_variant_type.ARRAY;
+        global_javascript_variant_table[variant_name].ulVal=(int)variant_data;
+    } else if (STRING==variant_type) {
+        global_javascript_variant_table[variant_name].vt=STRING;
+        global_javascript_variant_table[variant_name].wReserved3=strlen((const char*)variant_data)+1;
+        global_javascript_variant_table[variant_name].ulVal=(unsigned long)HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,global_javascript_variant_table[variant_name].wReserved3);
+        memcpy((void*)global_javascript_variant_table[variant_name].ulVal,variant_data,global_javascript_variant_table[variant_name].wReserved3);
+    } else if (ARRAY==variant_type) {
+        global_javascript_variant_table[variant_name].vt=ARRAY;
         //global_javascript_variant_table[variant_name].wReserved3=sizeof(tagARRAYDESC::);
-        //global_javascript_variant_table[variant_name].intVal=(int)variant_data;::tagOBJECTDESCRIPTOR;::tagSAFEARRAY::
-    } else if (support_javascript_variant_type.OBJECT==variant_type) {
-        global_javascript_variant_table[variant_name].vt=support_javascript_variant_type.NUMBER;
+        //global_javascript_variant_table[variant_name].ulVal=(int)variant_data;::tagOBJECTDESCRIPTOR;::tagSAFEARRAY::
+    } else if (OBJECT==variant_type) {
+        global_javascript_variant_table[variant_name].vt=NUMBER;
         global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
-        global_javascript_variant_table[variant_name].pvarVal=0;
+        global_javascript_variant_table[variant_name].ulVal=0;
     }
+}
+
+bool get_variant(string variant_name,void* output_variant_data,support_javascript_variant_type* output_variant_type) {
+    if (is_exist_variant(variant_name)) {
+        *(unsigned long*)output_variant_data=global_javascript_variant_table[variant_name].ulVal;
+        *output_variant_type=(support_javascript_variant_type)global_javascript_variant_table[variant_name].vt;
+        return true;
+    }
+    *(unsigned long*)output_variant_data=NULL;
+    *output_variant_type=NONE;
+    return false;
 }
 
 /*
@@ -141,9 +154,49 @@ void set_variant(string variant_name,void* variant_data,support_javascript_varia
     var_name.attribute=?????;
 */
 
-void express_calcu(string express) {
+static void trim(string& input_string) {
+    for (string::iterator index =input_string.begin();
+                          index!=input_string.end();
+                          ++index)
+        if (' '==*index)
+            input_string.erase(index);
+        else
+            break;
+    for (string::reverse_iterator rindex =input_string.rbegin();
+                                  rindex!=input_string.rend();
+                                  ++rindex) {
+        if (' '==*rindex) { 
+            input_string.erase((++rindex).base());
+            rindex=input_string.rbegin();
+        } else {
+            break;
+        }
+    }
+    if (input_string[input_string.length()-1]==' ')
+        input_string.erase((++input_string.rbegin()).base());
 }
 
+static is_calculation_express(string& express) {
+}
+
+static is_function_call(string& express) {
+}
+
+bool express_calcu(string express) {
+    trim(express);
+    if (is_calculation_express(express)) {
+    } else if (is_function_call(express)) {
+    }
+    return false;
+}
+
+bool init_envirment(void);
+
 void main(void) {
-    printf("%d",sizeof(a));
+    init_envirment();
+    set_variant("test",(void*)"1234",STRING);
+    long output_data=0;
+    support_javascript_variant_type output_type=NONE;
+    get_variant("test",(void*)&output_data,&output_type);
+    printf("%s",output_data);
 }

@@ -6,22 +6,23 @@
 --------------------Configuration: vuln_javascript - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\Users\ADMINI~1\AppData\Local\Temp\RSP4D0A.tmp" with contents
+Creating temporary file "C:\Users\ADMINI~1\AppData\Local\Temp\RSP51B5.tmp" with contents
 [
 /nologo /MLd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"Debug/vuln_javascript.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
 "C:\USERS\ADMINISTRATOR\DESKTOP\CODE_FILE\vuln_javascript\javascript_variant.cpp"
 ]
-Creating command line "cl.exe @C:\Users\ADMINI~1\AppData\Local\Temp\RSP4D0A.tmp" 
-Creating temporary file "C:\Users\ADMINI~1\AppData\Local\Temp\RSP4D0B.tmp" with contents
+Creating command line "cl.exe @C:\Users\ADMINI~1\AppData\Local\Temp\RSP51B5.tmp" 
+Creating temporary file "C:\Users\ADMINI~1\AppData\Local\Temp\RSP51B6.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"Debug/vuln_javascript.pdb" /debug /machine:I386 /out:"Debug/vuln_javascript.exe" /pdbtype:sept 
 .\Debug\javascript_variant.obj
 .\Debug\main.obj
 ]
-Creating command line "link.exe @C:\Users\ADMINI~1\AppData\Local\Temp\RSP4D0B.tmp"
+Creating command line "link.exe @C:\Users\ADMINI~1\AppData\Local\Temp\RSP51B6.tmp"
 <h3>Output Window</h3>
 Compiling...
 javascript_variant.cpp
+e:\vc6oo\vc98\include\utility(21) : warning C4786: 'std::pair<std::_Tree<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char> > const ,tagVARIANT>,std::map<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,tagVARIANT,std::less<std::basic_string<char,std::char_traits<char>,std::allocator<char> > >,std::allocator<tagVARIANT> >::_Kfn,std::less<std::basic_string<char,std::char_traits<char>,std::allocator<char> > >,std::allocator<tagVARIANT> >::iterator,bool>::pair<std::_Tree<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,std::pair<std::basic_string<char,std::char_traits<char>,std::allocator<char> > const ,tagVARIANT>,std::map<std::basic_string<char,std::char_traits<char>,std::allocator<char> >,tagVARIANT,std::less<std::basic_string<char,std::char_traits<char>,std::allocator<char> > >,std::allocator<tagVARIANT> >::_Kfn,std::less<std::basic_string<char,std::char_traits<char>,std::allocator<char> > >,std::allocator<tagVARIANT> >::iterator,bool>' : identifier was truncated to '255' characters in the debug information
 Linking...
 
 
