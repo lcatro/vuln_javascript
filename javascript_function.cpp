@@ -1,4 +1,5 @@
 
-bool add_function() {
+bool add_function(void) {
+    return false;
 }
 

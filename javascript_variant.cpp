@@ -149,11 +149,20 @@ bool copy_variant(string source_variant_name,string destination_variant_name) {
     return true;
 }
 
-bool set_variant_array(string variant_name,unsigned long array_index,void* output_variant_data,support_javascript_variant_type* output_variant_type) {
-    //
+bool set_variant_array(string variant_name,unsigned long array_index,void* input_variant_data,support_javascript_variant_type input_variant_type) {
+    if (is_exist_variant(variant_name)) {
+        support_javascript_variant_type variant_type=NONE;
+        return true;
+    }
+    return false;
 }
 
-bool set_variant_array(string variant_name,unsigned long array_index,void* output_variant_data,support_javascript_variant_type* output_variant_type) {
+bool get_variant_array(string variant_name,unsigned long array_index,void* output_variant_data,support_javascript_variant_type* output_variant_type) {
+    if (is_exist_variant(variant_name)) {
+        support_javascript_variant_type variant_type=NONE;
+        return true;
+    }
+    return false;
 }
 
 static void trim(string& input_string) {
@@ -214,12 +223,47 @@ static express_type get_express_type(string& express) {
     return EXPRESSION_UNKNOW;
 }
 
+static long get_next_calculation_flag(string& express) {
+    if (INVALID_VALUE!=express.find("+"))
+        return express.find("+");
+    else if (INVALID_VALUE!=express.find("-"))
+        return express.find("-");
+    else if (INVALID_VALUE!=express.find("*"))
+        return express.find("*");
+    else if (INVALID_VALUE!=express.find("/"))
+        return express.find("/");
+    else if (INVALID_VALUE!=express.find("("))
+        return express.find("(");
+    return INVALID_VALUE;
+}
+
 static bool is_calculation_express(string& express) {
     //  WARNING !!! 
-    if (INVALID_VALUE!=express.find("+")) {
-    } else if (INVALID_VALUE!=express.find("-")) {
-    } else if (INVALID_VALUE!=express.find("*")) {
-    } else if (INVALID_VALUE!=express.find("/")) {
+    express_type base_calculation_type=EXPRESSION_UNKNOW;
+    for (long next_calculation_flag=get_next_calculation_flag(express);
+              next_calculation_flag!=INVALID_VALUE;
+              next_calculation_flag=get_next_calculation_flag(express)) {
+        if ('+'==express[next_calculation_flag])) {
+            string left_express(express.substr(next_calculation_flag));
+            trim(left_express);
+            express=express.substr(next_calculation_flag+1);
+            express_type left_express_type=get_express_type(left_express);
+            next_calculation_flag=get_next_calculation_flag(express);
+            if (EXPRESSION_UNKNOW==left_express_type)
+                break;
+            if (EXPRESSION_UNKNOW==base_calculation_type)
+                base_calculation_type=left_express_type;
+            if (INVALID_VALUE==next_calculation_flag) {
+                string right_express(express);
+                trim(right_express);
+                express_type left_express_type=get_express_type(left_express);
+            }
+            set_variant("_function_return_",atoi(express.c_str()),NUMBER);
+        } else if ('-'==express[next_calculation_flag]) {
+        } else if ('*'==express[next_calculation_flag]) {
+        } else if ('/'==express[next_calculation_flag]) {
+        } else if ('('==express[next_calculation_flag]) {
+        }
     }
     return false;
 }
