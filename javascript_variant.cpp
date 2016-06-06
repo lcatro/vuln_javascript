@@ -4,77 +4,19 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <string>
 #include <map>
 
 #include <windows.h>
 #include <oaidl.h>
 
+#include "baselib_string.h"
 #include "global_setting.h"
 #include "javascript_base.h"
+#include "javascript_variant.h"
 
-using std::string;
 using std::map;
 
-typedef tagVARIANT javascript_variant_struct;
 typedef map<string,javascript_variant_struct> global_javascript_variant_table_;
-
-/* VARIANT STRUCTURE   <--  oaidl.h
- *
- *  VARTYPE vt;        <--  https://msdn.microsoft.com/en-us/library/windows/desktop/ms221170(v=vs.85).aspx
- *  WORD wReserved1;
- *  WORD wReserved2;
- *  WORD wReserved3;
- *  union {
- *    LONG           VT_I4
- *    BYTE           VT_UI1
- *    SHORT          VT_I2
- *    FLOAT          VT_R4
- *    DOUBLE         VT_R8
- *    VARIANT_BOOL   VT_BOOL
- *    SCODE          VT_ERROR
- *    CY             VT_CY
- *    DATE           VT_DATE
- *    BSTR           VT_BSTR
- *    IUnknown *     VT_UNKNOWN
- *    IDispatch *    VT_DISPATCH
- *    SAFEARRAY *    VT_ARRAY
- *    BYTE *         VT_BYREF|VT_UI1
- *    SHORT *        VT_BYREF|VT_I2
- *    LONG *         VT_BYREF|VT_I4
- *    FLOAT *        VT_BYREF|VT_R4
- *    DOUBLE *       VT_BYREF|VT_R8
- *    VARIANT_BOOL * VT_BYREF|VT_BOOL
- *    SCODE *        VT_BYREF|VT_ERROR
- *    CY *           VT_BYREF|VT_CY
- *    DATE *         VT_BYREF|VT_DATE
- *    BSTR *         VT_BYREF|VT_BSTR
- *    IUnknown **    VT_BYREF|VT_UNKNOWN
- *    IDispatch **   VT_BYREF|VT_DISPATCH
- *    SAFEARRAY **   VT_BYREF|VT_ARRAY
- *    VARIANT *      VT_BYREF|VT_VARIANT
- *    PVOID          VT_BYREF (Generic ByRef)
- *    CHAR           VT_I1
- *    USHORT         VT_UI2
- *    ULONG          VT_UI4
- *    INT            VT_INT
- *    UINT           VT_UINT
- *    DECIMAL *      VT_BYREF|VT_DECIMAL
- *    CHAR *         VT_BYREF|VT_I1
- *    USHORT *       VT_BYREF|VT_UI2
- *    ULONG *        VT_BYREF|VT_UI4
- *    INT *          VT_BYREF|VT_INT
- *    UINT *         VT_BYREF|VT_UINT
- *  }
- */
-
-enum support_javascript_variant_type {
-    NUMBER=0,  //  VT_INT
-    STRING,    //  VT_BSTR
-    ARRAY,     //  VT_ARRAY
-    OBJECT,    //  VT_STORED_OBJECT
-    NONE
-};
 
 global_javascript_variant_table_ global_javascript_variant_table;
 
@@ -95,15 +37,10 @@ bool is_exist_variant(string& variant_name) {
 }
 
 void set_variant(string variant_name,void* variant_data,support_javascript_variant_type variant_type) {
-    if (is_exist_variant(variant_name)) {
-        if (STRING==global_javascript_variant_table[variant_name].vt) {
+    if (is_exist_variant(variant_name))
+        if (STRING==global_javascript_variant_table[variant_name].vt)
             if (NULL!=global_javascript_variant_table[variant_name].ulVal)
                 HeapFree(heap_handle,0,(void*)global_javascript_variant_table[variant_name].ulVal);
-            global_javascript_variant_table[variant_name].wReserved3=strlen((const char*)variant_data)+1;
-            global_javascript_variant_table[variant_name].ulVal=(unsigned long)HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,global_javascript_variant_table[variant_name].wReserved3);
-            memcpy((void*)global_javascript_variant_table[variant_name].ulVal,variant_data,global_javascript_variant_table[variant_name].wReserved3);
-        }
-    }
     if (NONE==variant_type) {
         global_javascript_variant_table[variant_name].vt=NONE;
         global_javascript_variant_table[variant_name].wReserved3=0;
@@ -141,14 +78,11 @@ bool get_variant(string variant_name,void* output_variant_data,support_javascrip
     return false;
 }
 
-bool copy_variant(string source_variant_name,string destination_variant_name) {
-    if (!is_exist_variant(destination_variant_name))
-        return false;
+void copy_variant(string destination_variant_name,string source_variant_name) {
     unsigned long variant_data=0;
     support_javascript_variant_type variant_type=NONE;
-    get_variant(destination_variant_name,(void*)&variant_data,&variant_type);
-    set_variant(source_variant_name,(void*)variant_data,variant_type);
-    return true;
+    get_variant(source_variant_name,(void*)&variant_data,&variant_type);
+    set_variant(destination_variant_name,(void*)variant_data,variant_type);
 }
 
 bool set_variant_array(string variant_name,unsigned long array_index,void* input_variant_data,support_javascript_variant_type input_variant_type) {
@@ -166,57 +100,6 @@ bool get_variant_array(string variant_name,unsigned long array_index,void* outpu
     }
     return false;
 }
-
-static void trim(string& input_string) {
-    for (string::iterator index =input_string.begin();
-                          index!=input_string.end();
-                          ++index)
-        if (' '==*index)
-            input_string.erase(index);
-        else
-            break;
-    for (string::reverse_iterator rindex =input_string.rbegin();
-                                  rindex!=input_string.rend();
-                                  ++rindex) {
-        if (' '==*rindex) { 
-            input_string.erase((++rindex).base());
-            rindex=input_string.rbegin();
-        } else {
-            break;
-        }
-    }
-    if (input_string[input_string.length()-1]==' ')
-        input_string.erase((++input_string.rbegin()).base());
-}
-
-static long hex_string_to_number(string& input_string) {
-    char* end_point=NULL;
-    return strtol(input_string.c_str(),&end_point,16);
-}
-
-/*
-    Support JavaScript :
-    var var_name=expression;      -> var var_name=eval(expression)
-    var_name.substr();
-
-    Support Expression :
-    + - * /
-    call();
-    new Array();                  -> HeapAlloc
-
-    Support Var Function :
-    var_name.substr(l,b);
-    var_name[1];
-    var_name.attribute=?????;
-*/
-
-enum express_type {
-    EXPRESSION_NUMBER_DECIMAL=0,
-    EXPRESSION_NUMBER_HEX,
-    EXPRESSION_STRING,
-    EXPRESSION_EXPRESS,
-    EXPRESSION_UNKNOW
-};
 
 static long get_next_calculation_flag(string& express) {
     if (INVALID_VALUE!=express.find("("))
@@ -244,22 +127,10 @@ static express_type get_express_type(string& express) {
         string number(express.substr(2));
         if (atoi(number.c_str()))
             return EXPRESSION_NUMBER_HEX;
+    } else if (is_exist_variant(express)) {
+        return EXPRESSION_VARIANT;
     }
     return EXPRESSION_UNKNOW;
-}
-
-static unsigned long get_matching_outside_right_bracket(string& express,unsigned long call_index=0) {
-    for (unsigned long index=0;index<express.length();++index) {
-        if ('('==express[index]) {
-            unsigned long right_bracket_index=get_matching_outside_right_bracket(express.substr(index+1),call_index+1)+index+1;
-            if (!call_index)
-                return right_bracket_index;
-            index=right_bracket_index;
-        } else if (')'==express[index]) {
-            return index;
-        }
-    }
-    return 0;
 }
 
 static bool execute_calculation_express(string& express) {
@@ -272,14 +143,16 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type left_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==left_express_type)  //  12kk4+321 or +321
             return false;
-        if (EXPRESSION_EXPRESS==left_express_type) {  //  (123+321)+1
+        if (EXPRESSION_EXPRESS==left_express_type || EXPRESSION_VARIANT==left_express_type) {  //  (123+321)+1
             if (!execute_calculation_express(left_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_express_calcu_value,&left_express_calcu_value_type);
-            if (NUMBER==left_express_calcu_value_type)
+            if (NUMBER==left_express_calcu_value_type) {
                 left_express_type=EXPRESSION_NUMBER_DECIMAL;
-            else
+            } else {
                 left_express_type=EXPRESSION_STRING;
+                left_express=(const char*)left_express_calcu_value;
+            }
         } else if (EXPRESSION_STRING==left_express_type) { //  'AAA'+'A'
             left_express=left_express.substr(1,left_express.length()-2);
         }
@@ -291,14 +164,16 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type right_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==right_express_type)  //  321+12kk4 or 321+
             return false;
-        if (EXPRESSION_EXPRESS==right_express_type) {  //  123+123+123
+        if (EXPRESSION_EXPRESS==right_express_type || EXPRESSION_VARIANT==right_express_type) {  //  123+123+123
             if (!execute_calculation_express(right_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&right_express_calcu_value,&right_express_calcu_value_type);
-            if (NUMBER==right_express_calcu_value_type)
+            if (NUMBER==right_express_calcu_value_type) {
                 right_express_type=EXPRESSION_NUMBER_DECIMAL;
-            else
+            } else {
                 right_express_type=EXPRESSION_STRING;
+                right_express=(const char*)right_express_calcu_value;
+            }
         } else if (EXPRESSION_STRING==right_express_type) {  //  'AAA'+'A'
             right_express=right_express.substr(1,right_express.length()-2);
         }
@@ -369,7 +244,7 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type left_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==left_express_type)
             return false;
-        if (EXPRESSION_EXPRESS==left_express_type) {
+        if (EXPRESSION_EXPRESS==left_express_type || EXPRESSION_VARIANT==left_express_type) {
             if (!execute_calculation_express(left_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_express_calcu_value,&left_express_calcu_value_type);
@@ -377,6 +252,8 @@ static bool execute_calculation_express(string& express) {
                 left_express_type=EXPRESSION_NUMBER_DECIMAL;
         } else if (EXPRESSION_NUMBER_HEX==left_express_type) {
             left_express_calcu_value=hex_string_to_number(left_express);
+        } else if (EXPRESSION_NUMBER_DECIMAL==left_express_type) {
+            left_express_calcu_value=atoi(left_express.c_str());
         }
 
         string right_express(express.substr(next_calculation_flag+1));
@@ -386,7 +263,7 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type right_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==right_express_type)
             return false;
-        if (EXPRESSION_EXPRESS==right_express_type) {
+        if (EXPRESSION_EXPRESS==right_express_type || EXPRESSION_VARIANT==right_express_type) {
             if (!execute_calculation_express(right_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&right_express_calcu_value,&right_express_calcu_value_type);
@@ -394,6 +271,8 @@ static bool execute_calculation_express(string& express) {
                 right_express_type=EXPRESSION_NUMBER_DECIMAL;
         } else if (EXPRESSION_NUMBER_HEX==right_express_type) {
             right_express_calcu_value=hex_string_to_number(right_express);
+        } else if (EXPRESSION_NUMBER_DECIMAL==right_express_type) {
+            right_express_calcu_value=atoi(right_express.c_str());
         }
         left_express_calcu_value-=right_express_calcu_value;
         set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)left_express_calcu_value,NUMBER);
@@ -406,7 +285,7 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type left_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==left_express_type)
             return false;
-        if (EXPRESSION_EXPRESS==left_express_type) {
+        if (EXPRESSION_EXPRESS==left_express_type || EXPRESSION_VARIANT==left_express_type) {
             if (!execute_calculation_express(left_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_express_calcu_value,&left_express_calcu_value_type);
@@ -414,6 +293,8 @@ static bool execute_calculation_express(string& express) {
                 left_express_type=EXPRESSION_NUMBER_DECIMAL;
         } else if (EXPRESSION_NUMBER_HEX==left_express_type) {
             left_express_calcu_value=hex_string_to_number(left_express);
+        } else if (EXPRESSION_NUMBER_DECIMAL==left_express_type) {
+            left_express_calcu_value=atoi(left_express.c_str());
         }
 
         string right_express(express.substr(next_calculation_flag+1));
@@ -423,7 +304,7 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type right_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==right_express_type)
             return false;
-        if (EXPRESSION_EXPRESS==right_express_type) {
+        if (EXPRESSION_EXPRESS==right_express_type || EXPRESSION_VARIANT==right_express_type) {
             if (!execute_calculation_express(right_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&right_express_calcu_value,&right_express_calcu_value_type);
@@ -431,6 +312,8 @@ static bool execute_calculation_express(string& express) {
                 right_express_type=EXPRESSION_NUMBER_DECIMAL;
         } else if (EXPRESSION_NUMBER_HEX==right_express_type) {
             right_express_calcu_value=hex_string_to_number(right_express);
+        } else if (EXPRESSION_NUMBER_DECIMAL==right_express_type) {
+            right_express_calcu_value=atoi(right_express.c_str());
         }
         left_express_calcu_value*=right_express_calcu_value;
         set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)left_express_calcu_value,NUMBER);
@@ -443,7 +326,7 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type left_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==left_express_type)
             return false;
-        if (EXPRESSION_EXPRESS==left_express_type) {
+        if (EXPRESSION_EXPRESS==left_express_type || EXPRESSION_VARIANT==left_express_type) {
             if (!execute_calculation_express(left_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_express_calcu_value,&left_express_calcu_value_type);
@@ -451,6 +334,8 @@ static bool execute_calculation_express(string& express) {
                 left_express_type=EXPRESSION_NUMBER_DECIMAL;
         } else if (EXPRESSION_NUMBER_HEX==left_express_type) {
             left_express_calcu_value=hex_string_to_number(left_express);
+        } else if (EXPRESSION_NUMBER_DECIMAL==left_express_type) {
+            left_express_calcu_value=atoi(left_express.c_str());
         }
 
         string right_express(express.substr(next_calculation_flag+1));
@@ -460,7 +345,7 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type right_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==right_express_type)
             return false;
-        if (EXPRESSION_EXPRESS==right_express_type) {
+        if (EXPRESSION_EXPRESS==right_express_type || EXPRESSION_VARIANT==right_express_type) {
             if (!execute_calculation_express(right_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&right_express_calcu_value,&right_express_calcu_value_type);
@@ -468,6 +353,8 @@ static bool execute_calculation_express(string& express) {
                 right_express_type=EXPRESSION_NUMBER_DECIMAL;
         } else if (EXPRESSION_NUMBER_HEX==right_express_type) {
             right_express_calcu_value=hex_string_to_number(right_express);
+        } else if (EXPRESSION_NUMBER_DECIMAL==right_express_type) {
+            right_express_calcu_value=atoi(right_express.c_str());
         }
         left_express_calcu_value/=right_express_calcu_value;
         set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)left_express_calcu_value,NUMBER);
@@ -501,17 +388,25 @@ static bool execute_calculation_express(string& express) {
             return false;
         return true;
     }
+    if (is_exist_variant(express)) {
+        copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,express);
+        return true;
+    }
     return false;
 }
 
-static bool is_function_call(string& express) {
+static bool execute_function_call(string& express) {
     return false;
 }
 
-bool express_calcu(string express,javascript_variant_struct* output_result) {
+bool express_calcu(string express) {
     trim(express);
     if (execute_calculation_express(express)) {
-    //} else if (is_function_call(express)) {
+        copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
+        return true;
+    } else if (execute_function_call(express)) {
+        copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
+        return true;
     }
     express_type express_type_=get_express_type(express);
     if (EXPRESSION_UNKNOW!=express_type_) {
@@ -520,14 +415,13 @@ bool express_calcu(string express,javascript_variant_struct* output_result) {
         else if (EXPRESSION_NUMBER_HEX==express_type_)
             set_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)hex_string_to_number(express),NUMBER);
         else if (EXPRESSION_STRING==express_type_)
-            set_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)express.c_str(),STRING);
+            set_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)(express.substr(1,express.length()-2)).c_str(),STRING);
         return true;
     }
     return false;
 }
 
-bool init_envirment(void);
-
+/*
 void main(void) {
     init_envirment();
     /*
@@ -542,7 +436,7 @@ void main(void) {
     printf("string2=%s\n",output_data);
     get_variant("string_copy",(void*)&output_data,&output_type);
     printf("string_copy=%s\n",output_data);*/
-    
+    /*
     string calcu("1+(2+(1+1))");
     if (execute_calculation_express(calcu)) {
         long return_data=0;
@@ -551,6 +445,7 @@ void main(void) {
         printf("Calcu=%d",return_data);
     } else
         printf("ERR");
+        */
     /*
     string a("0x100");
     printf("%d",hex_string_to_number(a));*/
@@ -563,5 +458,5 @@ void main(void) {
     printf("%d\n",get_matching_outside_right_bracket(express,0));
     express=")";
     printf("%d\n",get_matching_outside_right_bracket(express,0));
-    */
 }
+*/

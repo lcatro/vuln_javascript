@@ -34,6 +34,9 @@
     var_name.substr(l,b);
     var_name[1];
     var_name.attribute=?????;
+
+    Other Function :
+    console.log();
 */
 
 HANDLE heap_handle=NULL;

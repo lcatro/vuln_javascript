@@ -2,6 +2,8 @@
 #ifndef _JAVASCRIPT_BASE_H__
 #define _JAVASCRIPT_BASE_H__
 
+#define INVALID_VALUE -1
+
 #define JAVASCRIPT_NULL "null"
 #define JAVASCRIPT_UNDEFINE "undefine"
 

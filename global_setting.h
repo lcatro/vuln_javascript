@@ -8,8 +8,11 @@
 
 #define PLATFORM_WINDOWS
 
-#define INVALID_VALUE -1
-
+#ifdef PLATFORM_WINDOWS
+#ifndef _WINDOWS_
+#include <windows.h>
+#endif
 extern HANDLE heap_handle;
+#endif
 
 #endif

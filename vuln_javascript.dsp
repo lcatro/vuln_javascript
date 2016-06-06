@@ -85,11 +85,19 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\baselib_string.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\javascript_envirment.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\javascript_function.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\javascript_syntax.cpp
 # End Source File
 # Begin Source File
 
@@ -105,11 +113,31 @@ SOURCE=.\main.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\baselib_string.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\global_setting.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\javascript_base.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\javascript_envirment.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\javascript_function.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\javascript_syntax.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\javascript_variant.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
