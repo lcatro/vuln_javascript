@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include "global_setting.h"
+#include "javascript_envirment.h"
 
 /*
     UaF and memory out of bound ..
@@ -38,17 +39,3 @@
     Other Function :
     console.log();
 */
-
-HANDLE heap_handle=NULL;
-
-bool init_envirment(void) {
-#ifdef HEAP_EXECUTE_PROTECT
-    heap_handle=HeapCreate(HEAP_CREATE_ENALBE_EXECUTE,HEAP_LENGTH,0);
-#else
-    heap_handle=HeapCreate(0,HEAP_LENGTH,0);
-#endif
-    if (NULL!=heap_handle)
-        return true;
-    heap_handle=GetProcessHeap();
-    return false;
-}

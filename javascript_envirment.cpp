@@ -95,10 +95,30 @@ bool eval(string express) {
     return true;
 }
 
-bool init_envirment(void);
+HANDLE heap_handle=NULL;
+
+static bool init_heap(void) {
+#ifdef HEAP_EXECUTE_PROTECT
+    heap_handle=HeapCreate(HEAP_CREATE_ENALBE_EXECUTE,HEAP_LENGTH,0);
+#else
+    heap_handle=HeapCreate(0,HEAP_LENGTH,0);
+#endif
+    if (NULL!=heap_handle)
+        return true;
+    heap_handle=GetProcessHeap();
+    return false;
+}
+
+bool init_javascript_envirment(void) {
+    if (!init_heap())
+        return false;
+    init_native_function();
+    return true;
+}
+
 
 void main(void) {
-    init_envirment();/*
+    init_javascript_envirment();/*
     eval("var a=1;");
     eval("var b=3");
     eval("var c='AAAAAA';");

@@ -6,13 +6,13 @@
 --------------------Configuration: vuln_javascript - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\Users\ADMINI~1\AppData\Local\Temp\RSP913E.tmp" with contents
+Creating temporary file "C:\Users\ADMINI~1\AppData\Local\Temp\RSP1842.tmp" with contents
 [
 /nologo /MLd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"Debug/vuln_javascript.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"C:\USERS\ADMINISTRATOR\DESKTOP\CODE_FILE\vuln_javascript\javascript_syntax.cpp"
+"C:\USERS\ADMINISTRATOR\DESKTOP\CODE_FILE\vuln_javascript\javascript_function.cpp"
 ]
-Creating command line "cl.exe @C:\Users\ADMINI~1\AppData\Local\Temp\RSP913E.tmp" 
-Creating temporary file "C:\Users\ADMINI~1\AppData\Local\Temp\RSP913F.tmp" with contents
+Creating command line "cl.exe @C:\Users\ADMINI~1\AppData\Local\Temp\RSP1842.tmp" 
+Creating temporary file "C:\Users\ADMINI~1\AppData\Local\Temp\RSP1843.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"Debug/vuln_javascript.pdb" /debug /machine:I386 /out:"Debug/vuln_javascript.exe" /pdbtype:sept 
 .\Debug\baselib_string.obj
@@ -22,16 +22,17 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 .\Debug\javascript_variant.obj
 .\Debug\main.obj
 ]
-Creating command line "link.exe @C:\Users\ADMINI~1\AppData\Local\Temp\RSP913F.tmp"
+Creating command line "link.exe @C:\Users\ADMINI~1\AppData\Local\Temp\RSP1843.tmp"
 <h3>Output Window</h3>
 Compiling...
-javascript_syntax.cpp
-Linking...
+javascript_function.cpp
+c:\users\administrator\desktop\code_file\vuln_javascript\javascript_function.cpp(44) : error C4716: 'add_function' : must return a value
+Ö´ÐÐ cl.exe Ê±³ö´í.
 
 
 
 <h3>Results</h3>
-vuln_javascript.exe - 0 error(s), 0 warning(s)
+vuln_javascript.exe - 1 error(s), 0 warning(s)
 </pre>
 </body>
 </html>
