@@ -8,6 +8,8 @@
 using std::string;
 #endif
 
+bool init_javascript_envirment(void);
 bool eval(string express);
+bool express_calcu(string express);
 
 #endif

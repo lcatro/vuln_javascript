@@ -77,12 +77,15 @@ unsigned long get_matching_outside_right_brace(string& express,unsigned long cal
 }
 
 void* alloc_memory(unsigned long alloc_length) {
+    alloc_length=(alloc_length<4)?4:alloc_length;
     void* alloc_address=NULL;
 #ifdef HEAP_EXECUTE_PROTECT
-    alloc_address=VirtualAllocEx((void*)-1,NULL,alloc_length,NULL,PAGE_READWRITE);
+    alloc_address=VirtualAlloc(NULL,alloc_length,NULL,PAGE_READWRITE);
 #else
-    alloc_address=VirtualAllocEx((void*)-1,NULL,alloc_length,NULL,PAGE_EXECUTE_READWRITE);
+    alloc_address=VirtualAlloc(NULL,alloc_length,NULL,PAGE_EXECUTE_READWRITE);
 #endif
+    if (NULL==alloc_address)
+        alloc_address=malloc(alloc_length);
     if (NULL!=alloc_address)
         memset(alloc_address,0,alloc_length);
     return alloc_address;

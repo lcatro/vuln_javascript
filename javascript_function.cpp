@@ -10,6 +10,7 @@
 #include "baselib_string.h"
 #include "javascript_base.h"
 #include "javascript_element.h"
+#include "javascript_envirment.h"
 #include "javascript_function.h"
 #include "javascript_variant.h"
 
@@ -117,9 +118,9 @@ void init_native_function(void) {
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_CONSOLE]["log"].is_native_function=true;
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_CONSOLE]["log"].native_function=console_log;
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["createElement"].is_native_function=true;
-    local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["createElement"].native_function=console_log;
+    local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["createElement"].native_function=document_createElement;
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["appendChild"].is_native_function=true;
-    local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["appendChild"].native_function=console_log;
+    local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["appendChild"].native_function=document_appendChild;
 }
 
 static bool is_exist_native_object(string object) {

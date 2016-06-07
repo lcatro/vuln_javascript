@@ -4,9 +4,7 @@
 
 #pragma warning (disable:4786)
 
-#define HEAP_EXECUTE_PROTECT
-#define HEAP_LENGTH                (1024*1000*3000)  //  300 MB
-#define HEAP_CREATE_ENALBE_EXECUTE 0x00040000
+//#define HEAP_EXECUTE_PROTECT
 
 #define PLATFORM_WINDOWS
 

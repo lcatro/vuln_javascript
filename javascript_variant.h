@@ -31,8 +31,6 @@ typedef tagVARIANT javascript_variant_struct;
 using std::string;
 #endif
 
-bool express_calcu(string express);
-
 bool is_exist_variant(string& variant_name);
 support_javascript_variant_type get_variant_type(string& variant_name);
 bool get_variant(string variant_name,void* output_variant_data,support_javascript_variant_type* output_variant_type);
