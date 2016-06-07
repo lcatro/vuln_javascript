@@ -27,6 +27,7 @@ typedef map<string,function_entry> object_function_table_;
 typedef map<string,object_function_table_> local_function_table_;
 local_function_table_ local_function_table;
 
+//  native function ..
 static bool console_log(function_argments& input_function_argments) {
     if (!input_function_argments.empty()) {
         unsigned long argment_data=0;
@@ -46,13 +47,25 @@ static bool console_log(function_argments& input_function_argments) {
     return true;
 }
 
-bool add_function(string base_object,string function) {
+static bool document_appendChild(function_argments& input_function_argments) {
+    return true;
+}
+
+static bool document_createElement(function_argments& input_function_argments) {
+    return true;
+}
+
+bool add_javascript_function(string base_object,string function_name,string function_code) {
     return false;
 }
 
 void init_native_function(void) {
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_CONSOLE]["log"].is_native_function=true;
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_CONSOLE]["log"].native_function=console_log;
+    local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["createElement"].is_native_function=true;
+    local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["createElement"].native_function=console_log;
+    local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["appendChild"].is_native_function=true;
+    local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["appendChild"].native_function=console_log;
 }
 
 static bool is_exist_object(string object) {

@@ -9,9 +9,10 @@ using std::string;
 #endif
 
 #define JAVASCRIPT_NATIVE_OBJECT_CONSOLE "console"
+#define JAVASCRIPT_NATIVE_OBJECT_DOCUMENT "document"
 
 void init_native_function(void);
-bool add_function(string base_object,string function);
+bool add_javascript_function(string base_object,string function_name,string function_code);
 bool eval_function(string express);
 
 #endif

@@ -11,7 +11,7 @@
 
     Support Document Function :
     document.createElement();     -> HeapAlloc
-    document.body.appendChild();  -> None
+    document.appendChild();       -> None
 
     Support Element :
     img
