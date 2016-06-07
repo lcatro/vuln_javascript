@@ -1,9 +1,6 @@
 
 #include <stdio.h>
 
-#include <windows.h>
-
-#include "global_setting.h"
 #include "javascript_envirment.h"
 
 /*

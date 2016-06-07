@@ -34,6 +34,7 @@ using std::string;
 bool express_calcu(string express);
 
 bool is_exist_variant(string& variant_name);
+support_javascript_variant_type get_variant_type(string& variant_name);
 bool get_variant(string variant_name,void* output_variant_data,support_javascript_variant_type* output_variant_type);
 void set_variant(string variant_name,void* variant_data,support_javascript_variant_type variant_type);
 void copy_variant(string destination_variant_name,string source_variant_name);

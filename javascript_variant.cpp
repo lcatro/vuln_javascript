@@ -38,11 +38,17 @@ bool is_exist_variant(string& variant_name) {
     return false;
 }
 
+support_javascript_variant_type get_variant_type(string& variant_name) {
+    if (!is_exist_variant(variant_name))
+        return NONE;
+    return (support_javascript_variant_type)global_javascript_variant_table[variant_name].vt;
+}
+
 void set_variant(string variant_name,void* variant_data,support_javascript_variant_type variant_type) {
     if (is_exist_variant(variant_name))
         if (STRING==global_javascript_variant_table[variant_name].vt)
             if (NULL!=global_javascript_variant_table[variant_name].ulVal)
-                HeapFree(heap_handle,0,(void*)global_javascript_variant_table[variant_name].ulVal);
+                free_memory((void*)global_javascript_variant_table[variant_name].ulVal);//HeapFree(heap_handle,0,(void*)global_javascript_variant_table[variant_name].ulVal);
     if (NONE==variant_type) {
         global_javascript_variant_table[variant_name].vt=NONE;
         global_javascript_variant_table[variant_name].wReserved3=0;
@@ -54,7 +60,7 @@ void set_variant(string variant_name,void* variant_data,support_javascript_varia
     } else if (STRING==variant_type) {
         global_javascript_variant_table[variant_name].vt=STRING;
         global_javascript_variant_table[variant_name].wReserved3=strlen((const char*)variant_data)+1;
-        global_javascript_variant_table[variant_name].ulVal=(unsigned long)HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,global_javascript_variant_table[variant_name].wReserved3);
+        global_javascript_variant_table[variant_name].ulVal=(unsigned long)alloc_memory(global_javascript_variant_table[variant_name].wReserved3);//HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,global_javascript_variant_table[variant_name].wReserved3);
         memcpy((void*)global_javascript_variant_table[variant_name].ulVal,variant_data,global_javascript_variant_table[variant_name].wReserved3);
     } else if (ARRAY==variant_type) {
         global_javascript_variant_table[variant_name].vt=ARRAY;

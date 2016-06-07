@@ -1,6 +1,8 @@
 
 #include "disable_warning.h"
 
+#include "global_setting.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -72,4 +74,20 @@ unsigned long get_matching_outside_right_brace(string& express,unsigned long cal
         }
     }
     return 0;
+}
+
+void* alloc_memory(unsigned long alloc_length) {
+    void* alloc_address=NULL;
+#ifdef HEAP_EXECUTE_PROTECT
+    alloc_address=VirtualAllocEx((void*)-1,NULL,alloc_length,NULL,PAGE_READWRITE);
+#else
+    alloc_address=VirtualAllocEx((void*)-1,NULL,alloc_length,NULL,PAGE_EXECUTE_READWRITE);
+#endif
+    if (NULL!=alloc_address)
+        memset(alloc_address,0,alloc_length);
+    return alloc_address;
+}
+
+void free_memory(void* alloc_buffer) {
+    VirtualFreeEx((void*)-1,alloc_buffer,NULL,NULL);
 }

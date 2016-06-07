@@ -113,8 +113,10 @@ static bool init_heap(void) {
 
 bool init_javascript_envirment(void) {
     init_native_function();
+    /*
     if (!init_heap())
         return false;
+        */
     return true;
 }
 

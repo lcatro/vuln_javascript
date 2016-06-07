@@ -3,6 +3,7 @@
 
 #include <memory.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <map>
 #include <vector>
@@ -55,6 +56,48 @@ static bool document_createElement(function_argments& input_function_argments) {
     return true;
 }
 
+static bool string_object_substr(string& object,function_argments& input_function_argments) {
+    unsigned long return_string=0;
+    if (!input_function_argments.empty()) {
+        if (2<=input_function_argments.size()) {  //  substr(offset)
+            unsigned long string_buffer=0;
+            unsigned long string_buffer_length=0;
+            support_javascript_variant_type string_buffer_type=NONE;
+            get_variant(object,(void*)&string_buffer,&string_buffer_type);
+            string_buffer_length=strlen((const char*)string_buffer);
+
+            unsigned long argment_offset=0;
+            support_javascript_variant_type argment_offset_type=NONE;
+            get_variant(input_function_argments[0],(void*)&argment_offset,&argment_offset_type);
+
+            unsigned long argment_length=0;
+            if (2==input_function_argments.size()) {  //  substr(offset,length)
+                support_javascript_variant_type argment_length_type=NONE;
+                get_variant(input_function_argments[0],(void*)&argment_length,&argment_length_type);
+            } else {
+                argment_length=string_buffer_length-argment_offset;
+            }
+            char* temp_string_buffer=(char*)alloc_memory(argment_length+1);
+            if (NULL!=temp_string_buffer) {
+                memcpy(temp_string_buffer,(const char*)string_buffer,argment_length);
+                set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)temp_string_buffer,STRING);
+                free_memory(temp_string_buffer);
+                return true;
+            }
+        }
+    }
+    set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)JAVASCRIPT_UNDEFINE,STRING);
+    return false;
+}
+
+static bool string_object_length(string& object) {
+    unsigned long string_buffer=0;
+    support_javascript_variant_type string_buffer_type=NONE;
+    get_variant(object,(void*)&string_buffer,&string_buffer_type);
+    set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)strlen((const char*)string_buffer),NUMBER);
+    return true;
+}
+
 bool add_javascript_function(string base_object,string function_name,string function_code) {
     return false;
 }
@@ -68,7 +111,7 @@ void init_native_function(void) {
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_DOCUMENT]["appendChild"].native_function=console_log;
 }
 
-static bool is_exist_object(string object) {
+static bool is_exist_native_object(string object) {
     for (local_function_table_::iterator local_function_table_index=local_function_table.begin();
                                          local_function_table_index!=local_function_table.end();
                                          ++local_function_table_index)
@@ -77,7 +120,7 @@ static bool is_exist_object(string object) {
     return false;
 }
 
-static bool is_exist_object_function(string object,string function) {
+static bool is_exist_native_object_function(string object,string function) {
     for (local_function_table_::iterator local_function_table_index=local_function_table.begin();
                                          local_function_table_index!=local_function_table.end();
                                          ++local_function_table_index) {
@@ -89,6 +132,26 @@ static bool is_exist_object_function(string object,string function) {
                     return true;
                 }
             }
+        }
+    }
+    return false;
+}
+
+static bool call_javascript_object_native_function(string base_object,string function_name,function_argments function_argments_list) {
+    if (is_exist_variant(base_object)) {
+        support_javascript_variant_type variant_type=get_variant_type(base_object);
+        if (STRING==variant_type) {
+            if ("substr"==function_name)
+                return string_object_substr(base_object,function_argments_list);
+            else if ("length"==function_name)
+                return string_object_length(base_object);
+        } else if (OBJECT==variant_type) {
+            if ("remove"==function_name)
+                //  virtual call ..
+                return false;
+            else if ("setAttribute"==function_name)
+                //  virtual call ..
+                return false;
         }
     }
     return false;
@@ -135,7 +198,9 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
         string function_name(function_name.substr(function_name.find('.')+1));
         trim(object_name);
         trim(function_name);
-        if (!is_exist_object_function(object_name,function_name))
+        if (!is_exist_native_object(object_name) && is_exist_variant(object_name))
+            return call_javascript_object_native_function(object_name,function_name,function_argments_list);
+        if (!is_exist_native_object_function(object_name,function_name))
             return false;
         if (local_function_table[object_name][function_name].is_native_function)
             return local_function_table[object_name][function_name].native_function(function_argments_list);
