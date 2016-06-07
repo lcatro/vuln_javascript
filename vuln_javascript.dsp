@@ -117,6 +117,10 @@ SOURCE=.\baselib_string.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\disable_warning.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\global_setting.h
 # End Source File
 # Begin Source File

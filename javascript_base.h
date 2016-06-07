@@ -2,8 +2,6 @@
 #ifndef _JAVASCRIPT_BASE_H__
 #define _JAVASCRIPT_BASE_H__
 
-#pragma warning (disable:4786)
-
 #define INVALID_VALUE -1
 
 #define JAVASCRIPT_NULL "null"

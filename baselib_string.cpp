@@ -1,4 +1,6 @@
 
+#include "disable_warning.h"
+
 #include <stdlib.h>
 #include <string.h>
 

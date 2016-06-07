@@ -1,4 +1,6 @@
 
+#include "disable_warning.h"
+
 #include "baselib_string.h"
 #include "javascript_base.h"
 #include "javascript_envirment.h"

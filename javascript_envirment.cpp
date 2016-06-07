@@ -1,4 +1,6 @@
 
+#include "disable_warning.h"
+
 #include "baselib_string.h"
 #include "global_setting.h"
 #include "javascript_base.h"
@@ -110,9 +112,9 @@ static bool init_heap(void) {
 }
 
 bool init_javascript_envirment(void) {
+    init_native_function();
     if (!init_heap())
         return false;
-    init_native_function();
     return true;
 }
 
