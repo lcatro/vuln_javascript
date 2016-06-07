@@ -442,6 +442,7 @@ bool express_calcu(string express) {
 }
 
 bool eval(string express) {
+    filter_useless_char(express);
     trim(express);
     if (check_string("{",express.c_str()) && INVALID_VALUE!=express.find('}')) {  //  inside code block ..
         for (unsigned long code_block_end_index=get_matching_outside_right_brace(express.substr(1),0),

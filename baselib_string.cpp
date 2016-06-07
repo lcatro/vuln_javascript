@@ -76,6 +76,16 @@ unsigned long get_matching_outside_right_brace(string& express,unsigned long cal
     return 0;
 }
 
+void filter_useless_char(string& express) {
+    for (string::iterator express_index=express.begin();
+                          express_index!=express.end();
+                          ++express_index) {
+        char express_char=*express_index;
+        if ('\t'==express_char || '\n'==express_char || '\r'==express_char)
+            *express_index=' ';
+    }
+}
+
 void* alloc_memory(unsigned long alloc_length) {
     alloc_length=(alloc_length<4)?4:alloc_length;
     void* alloc_address=NULL;
