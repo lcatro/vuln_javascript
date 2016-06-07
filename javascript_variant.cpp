@@ -399,12 +399,124 @@ static bool execute_function_call(string& express) {
     return false;
 }
 
+static bool execute_calculation_term(string& express) {
+    if (INVALID_VALUE!=express.find("==")) {
+        if (express_calcu(express.substr(0,express.find("==")))) {
+            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
+            if (express_calcu(express.substr(express.find("==")+2))) {
+                unsigned long left_term_data=0;
+                support_javascript_variant_type left_term_data_type=NONE;
+                unsigned long right_term_data=0;
+                support_javascript_variant_type right_term_data_type=NONE;
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_term_data,&left_term_data_type);
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&right_term_data,&right_term_data_type);
+                if (left_term_data_type!=right_term_data_type) {
+                    left_term_data=0;
+                    left_term_data_type=NUMBER;
+                    set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)left_term_data,left_term_data_type);
+                } else if (NUMBER==left_term_data_type) {
+                    if (left_term_data==right_term_data)
+                        left_term_data=1;
+                    else
+                        left_term_data=0;
+                    left_term_data_type=NUMBER;
+                    set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)left_term_data,left_term_data_type);
+                } else if (STRING==left_term_data_type) {
+                    if (!strcmp((const char*)left_term_data,(const char*)right_term_data))
+                        left_term_data=1;
+                    else
+                        left_term_data=0;
+                    left_term_data_type=NUMBER;
+                    set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)left_term_data,left_term_data_type);
+                }
+                return true;
+            }
+        }
+    } else if (INVALID_VALUE!=express.find("!=")) {
+        express.replace(express.find("!="),2,"==");
+        if (express_calcu(express)) {
+            unsigned long calcu_term_value=0;
+            support_javascript_variant_type calcu_term_value_type=NONE;
+            get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&calcu_term_value,&calcu_term_value_type);
+            calcu_term_value=(calcu_term_value)?0:1;
+            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)calcu_term_value,calcu_term_value_type);
+            return true;
+        }
+    } else if (INVALID_VALUE!=express.find("<")) {
+        if (express_calcu(express.substr(0,express.find('<')))) {
+            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
+            if (express_calcu(express.substr(express.find('<')+1))) {
+                unsigned long left_term_data=0;
+                support_javascript_variant_type left_term_data_type=NONE;
+                unsigned long right_term_data=0;
+                support_javascript_variant_type right_term_data_type=NONE;
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_term_data,&left_term_data_type);
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&right_term_data,&right_term_data_type);
+                if (left_term_data_type==right_term_data_type && NUMBER==left_term_data_type) {
+                    if (left_term_data<right_term_data)
+                        left_term_data=1;
+                    else
+                        left_term_data=0;
+                    left_term_data_type=NUMBER;
+                    set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)left_term_data,left_term_data_type);
+                    return true;
+                }
+            }
+        }
+    } else if (INVALID_VALUE!=express.find(">=")) {
+        express.replace(express.find(">="),2,"<");
+        if (express_calcu(express)) {
+            unsigned long calcu_term_value=0;
+            support_javascript_variant_type calcu_term_value_type=NONE;
+            get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&calcu_term_value,&calcu_term_value_type);
+            calcu_term_value=(calcu_term_value)?0:1;
+            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)calcu_term_value,calcu_term_value_type);
+            return true;
+        }
+    } else if (INVALID_VALUE!=express.find(">")) {
+        if (express_calcu(express.substr(0,express.find('>')))) {
+            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
+            if (express_calcu(express.substr(express.find('>')+1))) {
+                unsigned long left_term_data=0;
+                support_javascript_variant_type left_term_data_type=NONE;
+                unsigned long right_term_data=0;
+                support_javascript_variant_type right_term_data_type=NONE;
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_term_data,&left_term_data_type);
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&right_term_data,&right_term_data_type);
+                if (left_term_data_type==right_term_data_type && NUMBER==left_term_data_type) {
+                    if (left_term_data>right_term_data)
+                        left_term_data=1;
+                    else
+                        left_term_data=0;
+                    left_term_data_type=NUMBER;
+                    set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)left_term_data,left_term_data_type);
+                    return true;
+                }
+            }
+        }
+    } else if (INVALID_VALUE!=express.find("<=")) {
+        express.replace(express.find("<="),2,">");
+        if (express_calcu(express)) {
+            unsigned long calcu_term_value=0;
+            support_javascript_variant_type calcu_term_value_type=NONE;
+            get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&calcu_term_value,&calcu_term_value_type);
+            calcu_term_value=(calcu_term_value)?0:1;
+            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)calcu_term_value,calcu_term_value_type);
+            return true;
+        }
+    }
+    return false;
+}
+
 bool express_calcu(string express) {
     trim(express);
     if (execute_calculation_express(express)) {
         copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
         return true;
     } else if (execute_function_call(express)) {
+        copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
+        return true;
+    } else if (execute_calculation_term(express)) {
         copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
         return true;
     }

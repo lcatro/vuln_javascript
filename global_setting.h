@@ -8,10 +8,13 @@
 
 #define PLATFORM_WINDOWS
 
+
 #ifdef PLATFORM_WINDOWS
+
 #ifndef _WINDOWS_
 #include <windows.h>
 #endif
+
 extern HANDLE heap_handle;
 #endif
 
