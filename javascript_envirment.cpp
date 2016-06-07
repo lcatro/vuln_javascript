@@ -28,6 +28,8 @@ bool eval(string express) {
     }
     if (check_string("for",express.c_str()))  //  base JavaScript syntax ..
         return eval_for(express);
+    else if (check_string("if",express.c_str()))
+        return eval_if(express);
 
     string next_express;
     if (INVALID_VALUE!=express.find(';')) {  //  put data ..
