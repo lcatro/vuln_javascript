@@ -6,15 +6,14 @@
 #include <string.h>
 
 #include <map>
-#include <vector>
 
 #include "baselib_string.h"
 #include "javascript_base.h"
+#include "javascript_element.h"
 #include "javascript_function.h"
 #include "javascript_variant.h"
 
 using std::map;
-using std::vector;
 
 typedef vector<string> function_argments;
 
@@ -53,6 +52,18 @@ static bool document_appendChild(function_argments& input_function_argments) {
 }
 
 static bool document_createElement(function_argments& input_function_argments) {
+    if (input_function_argments.empty())
+        return false;
+    unsigned long argment_element=0;
+    support_javascript_variant_type argment_element_type=NONE;
+    get_variant(input_function_argments[0],(void*)&argment_element,&argment_element_type);
+
+    if (!strcmp("img",(const char*)argment_element))
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new img_element(),OBJECT);
+    else if (!strcmp("div",(const char*)argment_element))
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new div_element(),OBJECT);
+    else
+        return false;
     return true;
 }
 
@@ -146,12 +157,31 @@ static bool call_javascript_object_native_function(string base_object,string fun
             else if ("length"==function_name)
                 return string_object_length(base_object);
         } else if (OBJECT==variant_type) {
-            if ("remove"==function_name)
-                //  virtual call ..
-                return false;
-            else if ("setAttribute"==function_name)
-                //  virtual call ..
-                return false;
+            base_element* element_object=NULL;
+            get_variant(base_object,(void*)&element_object,&variant_type);
+            if ("remove"==function_name) {
+                element_object->remove();
+                return true;
+            } else if ("setAttribute"==function_name) {
+                if (2==function_argments_list.size()) {
+                    unsigned long attribute_name=0;
+                    support_javascript_variant_type attribute_name_type=NONE;
+                    get_variant(function_argments_list[0],(void*)&attribute_name,&attribute_name_type);
+                    unsigned long attribute_data=0;
+                    support_javascript_variant_type attribute_data_type=NONE;
+                    get_variant(function_argments_list[1],(void*)&attribute_name,&attribute_name_type);
+                    element_object->setAttribute((const char*)attribute_name,(void*)attribute_data);
+                    return true;
+                }
+            } else if ("getAttribute"==function_name) {
+                if (1==function_argments_list.size()) {
+                    unsigned long attribute_name=0;
+                    support_javascript_variant_type attribute_name_type=NONE;
+                    get_variant(function_argments_list[0],(void*)&attribute_name,&attribute_name_type);
+                    element_object->getAttribute((const char*)attribute_name);
+                    return true;
+                }
+            }
         }
     }
     return false;

@@ -89,6 +89,10 @@ SOURCE=.\baselib_string.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\javascript_element.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\javascript_envirment.cpp
 # End Source File
 # Begin Source File
@@ -126,6 +130,10 @@ SOURCE=.\global_setting.h
 # Begin Source File
 
 SOURCE=.\javascript_base.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\javascript_element.h
 # End Source File
 # Begin Source File
 

@@ -69,7 +69,7 @@ void set_variant(string variant_name,void* variant_data,support_javascript_varia
     } else if (OBJECT==variant_type) {
         global_javascript_variant_table[variant_name].vt=NUMBER;
         global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
-        global_javascript_variant_table[variant_name].ulVal=0;
+        global_javascript_variant_table[variant_name].ulVal=(unsigned long)variant_data;
     }
 }
 
