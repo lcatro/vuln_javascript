@@ -215,8 +215,9 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
         copy_variant(function_argment_variant_index,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
         function_argments_list.push_back(function_argment_variant_index);
     }
-    if (!express_calcu(function_argment))
-        return false;
+    if (!function_argment.empty())
+        if (!express_calcu(function_argment))
+            return false;
     string function_argment_variant_index("function_argment");
     char conver_buffer[0x20]={0};
     sprintf(conver_buffer,"%d",function_argments_index);

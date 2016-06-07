@@ -67,7 +67,7 @@ void set_variant(string variant_name,void* variant_data,support_javascript_varia
         //global_javascript_variant_table[variant_name].wReserved3=sizeof(tagARRAYDESC::);
         //global_javascript_variant_table[variant_name].ulVal=(int)variant_data;::tagOBJECTDESCRIPTOR;::tagSAFEARRAY::
     } else if (OBJECT==variant_type) {
-        global_javascript_variant_table[variant_name].vt=NUMBER;
+        global_javascript_variant_table[variant_name].vt=OBJECT;
         global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
         global_javascript_variant_table[variant_name].ulVal=(unsigned long)variant_data;
     }
