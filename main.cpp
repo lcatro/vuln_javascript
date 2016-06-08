@@ -59,7 +59,13 @@ void main(void) {
 //    eval("var a=1+(2+3)+4+((1+1+2)+3);"); <- WARNING! ..
 /*
     */
-    eval("var a=document.createElement('img');console.log(a.getAttribute('123'));a.remove();a.getAttribute('123');");/*
+    eval("var a=document.createElement('img');");
+    eval("var b=document.createElement('img');");
+    eval("var c=document.createElement('img');");
+    eval("var d=document.createElement('img');");
+    eval("a.setAttribute('123','AAA');");
+    eval("console.log(a.getAttribute('123'));a.remove();a.getAttribute('123');");
+                                                                                                    /*
     eval("var b=1;");
     eval("a=b+1;");
     eval("console.log(a);");

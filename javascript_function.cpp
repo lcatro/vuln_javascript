@@ -170,7 +170,7 @@ static bool call_javascript_object_native_function(string base_object,string fun
                     get_variant(function_argments_list[0],(void*)&attribute_name,&attribute_name_type);
                     unsigned long attribute_data=0;
                     support_javascript_variant_type attribute_data_type=NONE;
-                    get_variant(function_argments_list[1],(void*)&attribute_name,&attribute_name_type);
+                    get_variant(function_argments_list[1],(void*)&attribute_data,&attribute_data_type);
                     element_object->setAttribute((const char*)attribute_name,(void*)attribute_data);
                     return true;
                 }
@@ -214,6 +214,7 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
         function_argment_variant_index+=conver_buffer;
         copy_variant(function_argment_variant_index,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
         function_argments_list.push_back(function_argment_variant_index);
+        function_argment=function_argment.substr(function_argment.find(',')+1);
     }
     if (!function_argment.empty())
         if (!express_calcu(function_argment))
