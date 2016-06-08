@@ -13,6 +13,7 @@
 
 #include "baselib_string.h"
 #include "global_setting.h"
+#include "javascript_array.h"
 #include "javascript_base.h"
 #include "javascript_variant.h"
 
@@ -62,10 +63,14 @@ void set_variant(string variant_name,void* variant_data,support_javascript_varia
         global_javascript_variant_table[variant_name].wReserved3=strlen((const char*)variant_data)+1;
         global_javascript_variant_table[variant_name].ulVal=(unsigned long)alloc_memory(global_javascript_variant_table[variant_name].wReserved3);//HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,global_javascript_variant_table[variant_name].wReserved3);
         memcpy((void*)global_javascript_variant_table[variant_name].ulVal,variant_data,global_javascript_variant_table[variant_name].wReserved3);
-    } else if (ARRAY==variant_type) {
-        global_javascript_variant_table[variant_name].vt=ARRAY;
-        //global_javascript_variant_table[variant_name].wReserved3=sizeof(tagARRAYDESC::);
-        //global_javascript_variant_table[variant_name].ulVal=(int)variant_data;::tagOBJECTDESCRIPTOR;::tagSAFEARRAY::
+    } else if (INT_ARRAY==variant_type) {
+        global_javascript_variant_table[variant_name].vt=INT_ARRAY;
+        global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
+        global_javascript_variant_table[variant_name].ulVal=(unsigned long)variant_data;
+    } else if (OBJECT_ARRAY==variant_type) {
+        global_javascript_variant_table[variant_name].vt=OBJECT_ARRAY;
+        global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
+        global_javascript_variant_table[variant_name].ulVal=(unsigned long)variant_data;
     } else if (OBJECT==variant_type) {
         global_javascript_variant_table[variant_name].vt=OBJECT;
         global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
@@ -95,15 +100,45 @@ void copy_variant(string destination_variant_name,string source_variant_name) {
 
 bool set_variant_array(string variant_name,unsigned long array_index,void* input_variant_data,support_javascript_variant_type input_variant_type) {
     if (is_exist_variant(variant_name)) {
-        support_javascript_variant_type variant_type=NONE;
-        return true;
+        if (INT_ARRAY==get_variant_type(variant_name)) {
+            if (NUMBER==input_variant_type) {
+                int_array* array_class=NULL;
+                support_javascript_variant_type variant_type=NONE;
+                get_variant(variant_name,&array_class,&variant_type);
+                array_class->set_index(array_index,input_variant_data);
+                return true;
+            }
+        } else {
+            object_array* array_class=NULL;
+            support_javascript_variant_type variant_type=NONE;
+            get_variant(variant_name,&array_class,&variant_type);
+            javascript_variant_struct object_index_variant={0};
+            object_index_variant.vt=input_variant_type;
+            if (STRING==input_variant_type)
+                object_index_variant.wReserved3=strlen((const char*)input_variant_data);
+            else
+                object_index_variant.wReserved3=sizeof(int);
+            object_index_variant.ulVal=(unsigned long)input_variant_data;
+            array_class->set_index(array_index,&object_index_variant);
+            return true;
+        }
     }
     return false;
 }
 
 bool get_variant_array(string variant_name,unsigned long array_index,void* output_variant_data,support_javascript_variant_type* output_variant_type) {
     if (is_exist_variant(variant_name)) {
-        support_javascript_variant_type variant_type=NONE;
+        base_array* array_class=NULL;
+        support_javascript_variant_type array_type=NONE;
+        get_variant(variant_name,&array_class,&array_type);
+        if (INT_ARRAY==array_type) {
+            *(unsigned long*)output_variant_data=(unsigned long)((int_array*)array_class)->get_index(array_index);
+            *output_variant_type=NONE;
+        } else {
+            javascript_variant_struct* array_index_object=(javascript_variant_struct*)((object_array*)array_class)->get_index(array_index);
+            *(unsigned long*)output_variant_data=array_index_object->ulVal;
+            *output_variant_type=(support_javascript_variant_type)array_index_object->vt;
+        }
         return true;
     }
     return false;

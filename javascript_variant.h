@@ -3,20 +3,12 @@
 #define _JAVASCRIPT_VARIANT_H__
 
 enum support_javascript_variant_type {
-    NUMBER=0,  //  VT_INT
+    NONE=0,    //  NONE_VAR
+    NUMBER,    //  VT_INT
     STRING,    //  VT_BSTR
-    ARRAY,     //  VT_ARRAY
+    INT_ARRAY,     //  VT_ARRAY
+    OBJECT_ARRAY,     //  VT_ARRAY
     OBJECT,    //  VT_STORED_OBJECT
-    NONE       //  
-};
-
-enum express_type {
-    EXPRESSION_NUMBER_DECIMAL=0,
-    EXPRESSION_NUMBER_HEX,
-    EXPRESSION_STRING,
-    EXPRESSION_EXPRESS,
-    EXPRESSION_VARIANT,
-    EXPRESSION_UNKNOW
 };
 
 #ifndef _WINDOWS_

@@ -8,6 +8,7 @@
 #include <map>
 
 #include "baselib_string.h"
+#include "javascript_array.h"
 #include "javascript_base.h"
 #include "javascript_element.h"
 #include "javascript_envirment.h"
@@ -38,7 +39,9 @@ static bool console_log(function_argments& input_function_argments) {
             printf("%d\n",argment_data);
         else if (STRING==argment_data_type)
             printf("%s\n",argment_data);
-        else if (ARRAY==argment_data_type)
+        else if (INT_ARRAY==argment_data_type)
+            printf("unsupport ARRAY\n",argment_data);
+        else if (OBJECT_ARRAY==argment_data_type)
             printf("unsupport ARRAY\n",argment_data);
         else if (OBJECT==argment_data_type)
             printf("unsupport object\n",argment_data);
@@ -65,6 +68,38 @@ static bool document_createElement(function_argments& input_function_argments) {
         set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new div_element(),OBJECT);
     else
         return false;
+    return true;
+}
+
+static bool new_int_array(function_argments& input_function_argments) {
+    if (input_function_argments.empty()) {  //  new IntArray();
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new int_array(),INT_ARRAY);
+    } else if (1==input_function_argments.size()) {  //  new IntArray(1);
+        unsigned long argment_array_length=0;
+        support_javascript_variant_type argment_array_length_type=NONE;
+        get_variant(input_function_argments[0],(void*)&argment_array_length,&argment_array_length_type);
+        if (NUMBER!=argment_array_length_type)
+            return false;
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new int_array(argment_array_length),INT_ARRAY);
+    } else {  //  new IntArray(1,2,3,4,...);
+        int_array* int_array_class=new int_array(input_function_argments.size());
+        unsigned long init_array_index=0;
+        for (function_argments::iterator function_argments_index=input_function_argments.begin();
+                                         function_argments_index!=input_function_argments.end();
+                                         ++function_argments_index) {
+            unsigned long argment_array_data=0;
+            support_javascript_variant_type argment_array_data_type=NONE;
+            get_variant(*function_argments_index,(void*)&argment_array_data,&argment_array_data_type);
+            if (NUMBER!=argment_array_data_type)
+                return false;
+            int_array_class->set_index(init_array_index++,(void*)argment_array_data);
+        }
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)int_array_class,INT_ARRAY);
+    }
+    return true;
+}
+
+static bool new_obj_array(function_argments& input_function_argments) {
     return true;
 }
 
@@ -238,6 +273,14 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
         if (local_function_table[object_name][function_name].is_native_function)
             return local_function_table[object_name][function_name].native_function(function_argments_list);
         return eval_javascript_function(local_function_table[object_name][function_name].javascript_code,function_argments_list);
+    }
+    if (check_string("new",function_name.c_str())) {
+        function_name=function_name.substr(4);
+        trim(function_name);
+        if ("IntArray"==function_name)
+            return new_int_array(function_argments_list);
+        else if ("ObjArray"==function_name)
+            return new_obj_array(function_argments_list);
     }
     return true;
 }

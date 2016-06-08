@@ -9,6 +9,16 @@
 #include "javascript_syntax.h"
 #include "javascript_variant.h"
 
+enum express_type {
+    EXPRESSION_NUMBER_DECIMAL=0,
+    EXPRESSION_NUMBER_HEX,
+    EXPRESSION_STRING,
+    EXPRESSION_EXPRESS,
+    EXPRESSION_VARIANT,
+    EXPRESSION_ARRAY,
+    EXPRESSION_UNKNOW
+};
+
 static long get_next_calculation_flag(string& express) {
     if (INVALID_VALUE!=express.find("("))
         return express.find("(");
@@ -37,6 +47,10 @@ static express_type get_express_type(string& express) {
             return EXPRESSION_NUMBER_HEX;
     } else if (is_exist_variant(express)) {
         return EXPRESSION_VARIANT;
+    } else if ((INVALID_VALUE!=express.find('[') && INVALID_VALUE!=express.find(']')) &&
+               (express.find('[')<express.find(']'))) {
+        if (is_exist_variant(express.substr(0,express.find('['))))
+            return EXPRESSION_ARRAY;
     }
     return EXPRESSION_UNKNOW;
 }
@@ -430,12 +444,23 @@ bool express_calcu(string express) {
     }
     express_type express_type_=get_express_type(express);
     if (EXPRESSION_UNKNOW!=express_type_) {
-        if (EXPRESSION_NUMBER_DECIMAL==express_type_)
+        if (EXPRESSION_NUMBER_DECIMAL==express_type_) {
             set_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)atoi(express.c_str()),NUMBER);
-        else if (EXPRESSION_NUMBER_HEX==express_type_)
+        } else if (EXPRESSION_NUMBER_HEX==express_type_) {
             set_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)hex_string_to_number(express),NUMBER);
-        else if (EXPRESSION_STRING==express_type_)
+        } else if (EXPRESSION_STRING==express_type_) {
             set_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)(express.substr(1,express.length()-2)).c_str(),STRING);
+        } else if (EXPRESSION_ARRAY==express_type_) {
+            string variant_name(express.substr(0,express.find('[')));
+            express_calcu(express.substr(express.find('[')+1,express.find(']')-express.find('[')-1));
+            unsigned long array_index=0;
+            support_javascript_variant_type array_type=NONE;
+            get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&array_index,&array_type);
+            if (NUMBER!=array_index)
+                return false;
+            get_variant_array(variant_name,array_index,&array_index,&array_type);
+            set_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)array_index,array_type);
+        }
         return true;
     }
     return false;
@@ -520,10 +545,26 @@ bool eval(string express) {
             trim(variant_name);
             string calcu_express(express.substr(express.find('=')+1));
 
-            if (express_calcu(calcu_express))
-                copy_variant(variant_name,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
-            else
+            if (!express_calcu(calcu_express))
                 return false;
+            if (EXPRESSION_ARRAY==get_express_type(variant_name)) {
+                unsigned long calcu_result=0;
+                support_javascript_variant_type calcu_result_type=NONE;
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&calcu_result,&calcu_result_type);
+                string array_index_express(variant_name.substr(variant_name.find('[')+1,variant_name.find(']')-variant_name.find('[')-1));
+                if (!express_calcu(array_index_express))
+                    return false;
+                unsigned long array_index=0;
+                support_javascript_variant_type array_index_type=NONE;
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&array_index,&array_index_type);
+                variant_name=variant_name.substr(0,variant_name.find('['));
+                trim(variant_name);
+                if (INT_ARRAY==get_variant_type(variant_name) && NUMBER!=calcu_result_type)
+                    return false;
+                set_variant_array(variant_name,array_index,(void*)calcu_result,calcu_result_type);
+            } else {
+                copy_variant(variant_name,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
+            }
         }
     }
     if (!next_express.empty())

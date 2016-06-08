@@ -89,6 +89,10 @@ SOURCE=.\baselib_string.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\javascript_array.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\javascript_element.cpp
 # End Source File
 # Begin Source File
@@ -126,6 +130,10 @@ SOURCE=.\disable_warning.h
 # Begin Source File
 
 SOURCE=.\global_setting.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\javascript_array.h
 # End Source File
 # Begin Source File
 
