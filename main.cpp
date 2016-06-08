@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <string.h>
 
 #include "javascript_envirment.h"
 
@@ -39,55 +40,25 @@
     console.log();
 */
 
-void main(void) {
-    init_javascript_envirment();/*
-    eval("var a=1;");
-    eval("var b=3");
-    eval("var c='AAAAAA';");
-    eval("var d=c;");
-    eval("e=a;");
-    eval("console.log(a);");
-    eval("console.log(c);");
-    eval("console.log(d);");
-    eval("console.log(e);");
-    eval("console.log(2-1);");
-    eval("console.log(1*2);");
-    eval("console.log(4/1);");
-    eval("console.log(a+c)");
-    eval("console.log(c+c)");*/
-
-//    eval("var a=1+(2+3)+4+((1+1+2)+3);"); <- WARNING! ..
-/*
-    eval("var a=document.createElement('img');");
-    eval("var b=document.createElement('img');");
-    eval("var c=document.createElement('img');");
-    eval("var d=document.createElement('img');");
-    eval("a.setAttribute('123','AAA');");
-    eval("console.log(a.getAttribute('123'));a.remove();a.getAttribute('123');");
-           */
-           
-    eval("var a=new IntArray(10);a[0]=123;console.log(a[0]);");
-           /*
-    eval("var b=1;");
-    eval("a=b+1;");
-    eval("console.log(a);");
-    eval("a=a+1;");
-    eval("console.log(a);");
-    eval("a+=1;");
-    eval("console.log(a);");
-    eval("for (var c=1;c<10;c+=1) {a+=1;}");
-    eval("console.log(a);");*/
-    //eval("{var a=1;{var b=2;}console.log(a+b);}");
-    /*
-    eval("console.log(1==1);");
-    eval("console.log(1>=1);");
-    eval("console.log(1==2);");
-    eval("console.log(1<3);");*/
+void main(unsigned long argment_length,char** argment_list) {
+    init_javascript_envirment();
+    if (2==argment_length) {
+        eval(argment_list[1]);
+    } else {
+        printf("vuln_javascript_console_mode:\n");
+        while (true) {
+            printf(">");
+            char input_javascript_code[1024]={0};  //  <- you know ..
+            gets(input_javascript_code);
+            if (!strcmp("quit",input_javascript_code))
+                return;
+            eval(input_javascript_code);
+        }
+    }
 }
 
 /*
-void main(void) {
-    init_envirment();
+void test_code(void) {
     /*
     set_variant("string1",(void*)"1234",STRING);
     set_variant("string2",(void*)"just test!",STRING);
@@ -122,5 +93,49 @@ void main(void) {
     printf("%d\n",get_matching_outside_right_bracket(express,0));
     express=")";
     printf("%d\n",get_matching_outside_right_bracket(express,0));
+
+    /*
+    eval("var a=1;");
+    eval("var b=3");
+    eval("var c='AAAAAA';");
+    eval("var d=c;");
+    eval("e=a;");
+    eval("console.log(a);");
+    eval("console.log(c);");
+    eval("console.log(d);");
+    eval("console.log(e);");
+    eval("console.log(2-1);");
+    eval("console.log(1*2);");
+    eval("console.log(4/1);");
+    eval("console.log(a+c)");
+    eval("console.log(c+c)");*/
+
+//    eval("var a=1+(2+3)+4+((1+1+2)+3);"); <- WARNING! ..
+/*
+    eval("var a=document.createElement('img');");
+    eval("var b=document.createElement('img');");
+    eval("var c=document.createElement('img');");
+    eval("var d=document.createElement('img');");
+    eval("a.setAttribute('123','AAA');");
+    eval("console.log(a.getAttribute('123'));a.remove();a.getAttribute('123');");
+           
+    eval("var a=new IntArray(10);a[0]=123;console.log(a[0]);");
+
+    eval("var b=1;");
+    eval("a=b+1;");
+    eval("console.log(a);");
+    eval("a=a+1;");
+    eval("console.log(a);");
+    eval("a+=1;");
+    eval("console.log(a);");
+    eval("for (var c=1;c<10;c+=1) {a+=1;}");
+    eval("console.log(a);");*/
+    //eval("{var a=1;{var b=2;}console.log(a+b);}");
+    /*
+    eval("console.log(1==1);");
+    eval("console.log(1>=1);");
+    eval("console.log(1==2);");
+    eval("console.log(1<3);");
+
 }
 */
