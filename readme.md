@@ -27,7 +27,11 @@
     + - * / ()                 四则运算
     == != > >= ...             表达式判断
     call();                    函数调用
-    new Array();               生成数组
+    new IntArray();            生成数字数组
+    new IntArray(length);      生成长度为length 的数字数组
+    new IntArray(num1,num2);   生成长度为2 且包含内容为num1,num2 的数字数组
+    new ObjArray();            生成对象数组
+    new ObjArray(length);      生成长度为length 的对象数组
 
     支持的元素方法 :
     var_name.substr(l,b);      元素函数调用
