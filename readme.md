@@ -25,6 +25,7 @@
 
     支持的表达式计算 :
     + - * / ()                 四则运算
+    ''                         使用'' 号来表示字符串
     == != > >= ...             表达式判断
     call();                    函数调用
     new IntArray();            生成数字数组
@@ -39,6 +40,15 @@
 
     其它的JavaScript 函数 :
     console.log();             输出数据
+
+####建议在所有语句后面添加; 号
+
+Example :<br/>
+
+    for (var index=1;index<10;index+=1) {console.log(index);};  //  使用; 来结束for 语句
+    if (1==1) {console.log('yes');} else if (2==1) {console.log('never execute')} else {cnosolve.log('666')};  //  使用; 来结束if 语句块
+
+---
 
 Readme 分为两部分:<br/><br/>
 1.UaF 原理部分(Use after Free ,重复使用已经被释放了的类)<br/><br/>
