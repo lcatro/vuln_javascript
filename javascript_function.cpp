@@ -100,6 +100,16 @@ static bool new_int_array(function_argments& input_function_argments) {
 }
 
 static bool new_obj_array(function_argments& input_function_argments) {
+    if (input_function_argments.empty()) {  //  new ObjArray();
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new object_array(),OBJECT_ARRAY);
+    } else if (1==input_function_argments.size()) {  //  new ObjArray(1);
+        unsigned long argment_array_length=0;
+        support_javascript_variant_type argment_array_length_type=NONE;
+        get_variant(input_function_argments[0],(void*)&argment_array_length,&argment_array_length_type);
+        if (NUMBER!=argment_array_length_type)
+            return false;
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new object_array(argment_array_length),OBJECT_ARRAY);
+    }
     return true;
 }
 
