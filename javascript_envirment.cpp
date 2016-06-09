@@ -324,13 +324,13 @@ static bool execute_function_call(string& express) {
 static bool execute_calculation_term(string& express) {
     if (INVALID_VALUE!=express.find("==")) {
         if (express_calcu(express.substr(0,express.find("==")))) {
-            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
+            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_LEFT_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
             if (express_calcu(express.substr(express.find("==")+2))) {
                 unsigned long left_term_data=0;
                 support_javascript_variant_type left_term_data_type=NONE;
                 unsigned long right_term_data=0;
                 support_javascript_variant_type right_term_data_type=NONE;
-                get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_term_data,&left_term_data_type);
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_LEFT_RESULT,(void*)&left_term_data,&left_term_data_type);
                 get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&right_term_data,&right_term_data_type);
                 if (left_term_data_type!=right_term_data_type) {
                     left_term_data=0;
@@ -386,13 +386,13 @@ static bool execute_calculation_term(string& express) {
         }
     } else if (INVALID_VALUE!=express.find("<")) {
         if (express_calcu(express.substr(0,express.find('<')))) {
-            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
+            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_LEFT_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
             if (express_calcu(express.substr(express.find('<')+1))) {
                 unsigned long left_term_data=0;
                 support_javascript_variant_type left_term_data_type=NONE;
                 unsigned long right_term_data=0;
                 support_javascript_variant_type right_term_data_type=NONE;
-                get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_term_data,&left_term_data_type);
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_LEFT_RESULT,(void*)&left_term_data,&left_term_data_type);
                 get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&right_term_data,&right_term_data_type);
                 if (left_term_data_type==right_term_data_type && NUMBER==left_term_data_type) {
                     if (left_term_data<right_term_data)
@@ -407,13 +407,13 @@ static bool execute_calculation_term(string& express) {
         }
     } else if (INVALID_VALUE!=express.find(">")) {
         if (express_calcu(express.substr(0,express.find('>')))) {
-            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
+            copy_variant(JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_LEFT_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
             if (express_calcu(express.substr(express.find('>')+1))) {
                 unsigned long left_term_data=0;
                 support_javascript_variant_type left_term_data_type=NONE;
                 unsigned long right_term_data=0;
                 support_javascript_variant_type right_term_data_type=NONE;
-                get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_term_data,&left_term_data_type);
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_LEFT_RESULT,(void*)&left_term_data,&left_term_data_type);
                 get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&right_term_data,&right_term_data_type);
                 if (left_term_data_type==right_term_data_type && NUMBER==left_term_data_type) {
                     if (left_term_data>right_term_data)
