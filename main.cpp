@@ -43,7 +43,24 @@
 void main(unsigned long argment_length,char** argment_list) {
     init_javascript_envirment();
     if (2==argment_length) {
-        eval(argment_list[1]);
+        FILE* open_file=fopen(argment_list[1],"r");
+        if (NULL!=open_file) {
+            fseek(open_file,0,SEEK_END);
+            unsigned long file_length=ftell(open_file);
+            if (file_length) {
+                fseek(open_file,0,SEEK_SET);
+                char* javascript_code=(char*)malloc(file_length+1);
+                memset(javascript_code,0,file_length+1);
+                fread(javascript_code,1,file_length,open_file);
+                fclose(open_file);
+                eval(javascript_code);
+                free(javascript_code);
+            } else {
+                printf("empty execute file ..");
+            }
+        } else {
+            printf("open javascript execute file error !..");
+        }
     } else {
         printf("vuln_javascript_console_mode:\n");
         while (true) {

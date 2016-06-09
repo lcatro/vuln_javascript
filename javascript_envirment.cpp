@@ -364,6 +364,26 @@ static bool execute_calculation_term(string& express) {
             set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)calcu_term_value,calcu_term_value_type);
             return true;
         }
+    } else if (INVALID_VALUE!=express.find(">=")) {
+        express.replace(express.find(">="),2,"<");
+        if (express_calcu(express)) {
+            unsigned long calcu_term_value=0;
+            support_javascript_variant_type calcu_term_value_type=NONE;
+            get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&calcu_term_value,&calcu_term_value_type);
+            calcu_term_value=(calcu_term_value)?0:1;
+            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)calcu_term_value,calcu_term_value_type);
+            return true;
+        }
+    } else if (INVALID_VALUE!=express.find("<=")) {
+        express.replace(express.find("<="),2,">");
+        if (express_calcu(express)) {
+            unsigned long calcu_term_value=0;
+            support_javascript_variant_type calcu_term_value_type=NONE;
+            get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&calcu_term_value,&calcu_term_value_type);
+            calcu_term_value=(calcu_term_value)?0:1;
+            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)calcu_term_value,calcu_term_value_type);
+            return true;
+        }
     } else if (INVALID_VALUE!=express.find("<")) {
         if (express_calcu(express.substr(0,express.find('<')))) {
             copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
@@ -385,16 +405,6 @@ static bool execute_calculation_term(string& express) {
                 }
             }
         }
-    } else if (INVALID_VALUE!=express.find(">=")) {
-        express.replace(express.find(">="),2,"<");
-        if (express_calcu(express)) {
-            unsigned long calcu_term_value=0;
-            support_javascript_variant_type calcu_term_value_type=NONE;
-            get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&calcu_term_value,&calcu_term_value_type);
-            calcu_term_value=(calcu_term_value)?0:1;
-            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)calcu_term_value,calcu_term_value_type);
-            return true;
-        }
     } else if (INVALID_VALUE!=express.find(">")) {
         if (express_calcu(express.substr(0,express.find('>')))) {
             copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
@@ -415,16 +425,6 @@ static bool execute_calculation_term(string& express) {
                     return true;
                 }
             }
-        }
-    } else if (INVALID_VALUE!=express.find("<=")) {
-        express.replace(express.find("<="),2,">");
-        if (express_calcu(express)) {
-            unsigned long calcu_term_value=0;
-            support_javascript_variant_type calcu_term_value_type=NONE;
-            get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&calcu_term_value,&calcu_term_value_type);
-            calcu_term_value=(calcu_term_value)?0:1;
-            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)calcu_term_value,calcu_term_value_type);
-            return true;
         }
     }
     return false;
@@ -487,10 +487,11 @@ bool eval(string express) {
         }
         return true;
     }
+    bool base_javascript_syntax_execute_result=true;
     if (check_string("for",express.c_str()))  //  base JavaScript syntax ..
-        return eval_for(express);
+        base_javascript_syntax_execute_result=eval_for(express);
     else if (check_string("if",express.c_str()))
-        return eval_if(express);
+        base_javascript_syntax_execute_result=eval_if(express);
 
     string next_express;
     if (INVALID_VALUE!=express.find(';')) {  //  put data ..
@@ -569,7 +570,7 @@ bool eval(string express) {
     }
     if (!next_express.empty())
         return eval(next_express);
-    return true;
+    return base_javascript_syntax_execute_result;
 }
 
 bool init_javascript_envirment(void) {
