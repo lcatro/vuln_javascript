@@ -1,5 +1,6 @@
 ###vuln_javascript
 ![vuln_javascript](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/vuln_javascript_logo.jpg)
+
 ---
 
 `vuln_javascript` 模拟真实的浏览器的JavaScript 环境,通常地,我们使用JavaScript 来精心设计一些操作DOM 和其它浏览器对象的逻辑代码时会使得浏览器产生崩溃,针对不同种类的崩溃有不同的利用方法.`vuln_javascript` 收集了UAF 和越界读写两种漏洞类型,希望`vuln_javascript` 可以帮助更多安全爱好者理解浏览器内核漏洞原理和细节还有相关的Exploit 编写技巧.由于`vuln_javascript` 并不是真正的JavaScript 执行环境,所以现在只支持执行JavaScript 语句很少,可执行的语句如下:<br/><br/>
@@ -59,8 +60,8 @@ Uaf 的原理是:**当HTML 元素调用了remove() 删除自身并且在堆中�
 
 ---
 `vuln_javacript.exe` 编译完成的EXE 在`/Release` 路径下可以找到(编译IDE 环境:VC++ 6 ,没有导入任何其它库).<br/><br/>
-`vuln_javacript.exe` 可以选择带参数运行,指定的参数为即将要执行的JavaScript 代码文件路径,例子:<br/>
-![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/example_using_run_file.png)<br/>
-`vuln_javacript.exe` 也可以不带参数运行,默认以控制台的形式执行代码,例子:<br/>
-![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/example_using_console_mode.png)<br/>
+`vuln_javacript.exe` 可以选择带参数运行,指定的参数为即将要执行的JavaScript 代码文件路径,例子:<br/><br/>
+![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/example_using_run_file.png)<br/><br/>
+`vuln_javacript.exe` 也可以不带参数运行,默认以控制台的形式执行代码,例子:<br/><br/>
+![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/example_using_console_mode.png)<br/><br/>
 退出控制台模式的命令为`quit` ..
