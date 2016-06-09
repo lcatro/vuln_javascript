@@ -41,13 +41,6 @@
     其它的JavaScript 函数 :
     console.log();             输出数据
 
-####建议在所有语句后面添加; 号
-
-Example :<br/>
-
-    for (var index=1;index<10;index+=1) {console.log(index);};  //  使用; 来结束for 语句
-    if (1==1) {console.log('yes');} else if (2==1) {console.log('never execute')} else {cnosolve.log('666')};  //  使用; 来结束if 语句块
-
 ---
 
 Readme 分为两部分:<br/><br/>
@@ -62,3 +55,12 @@ Uaf 的原理是:**当HTML 元素调用了remove() 删除自身并且在堆中�
 通常情况下,我们都可以正常访问buffer1 里面的数据,假设往buffer1 里面读写数据的时候的时候一不小心就越过了buffer1 本来的长度到了buffer2 呢?<br/>
 ![read_write_out_of_buffer1](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_write_out_of_buffer1.png)<br/>
 
+###vuln_javacript 使用
+
+---
+`vuln_javacript.exe` 编译完成的EXE 在`/Release` 路径下可以找到(编译IDE 环境:VC++ 6 ,没有导入任何其它库).<br/><br/>
+`vuln_javacript.exe` 可以选择带参数运行,指定的参数为即将要执行的JavaScript 代码文件路径,例子:<br/>
+![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/example_using_run_file.png)<br/>
+`vuln_javacript.exe` 也可以不带参数运行,默认以控制台的形式执行代码,例子:<br/>
+![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/example_using_console_mode.png)<br/>
+退出控制台模式的命令为`quit` ..
