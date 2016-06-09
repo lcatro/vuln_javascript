@@ -65,7 +65,7 @@ unsigned long get_matching_outside_right_bracket(string& express,unsigned long c
 unsigned long get_matching_outside_right_brace(string& express,unsigned long call_index=0) {
     for (unsigned long index=0;index<express.length();++index) {
         if ('{'==express[index]) {
-            unsigned long right_bracket_index=get_matching_outside_right_bracket(express.substr(index+1),call_index+1)+index+1;
+            unsigned long right_bracket_index=get_matching_outside_right_brace(express.substr(index+1),call_index+1)+index+1;
             if (!call_index)
                 return right_bracket_index;
             index=right_bracket_index;

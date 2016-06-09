@@ -539,15 +539,27 @@ bool eval(string express) {
             }
         } else {
             string variant_name;  //  asd
-            if (check_string("var",express.c_str()))
-                variant_name=express.substr(3,express.find('=')-3);
-            else
-                variant_name=express.substr(0,express.find('='));
+            string calcu_express;
+            if (check_string("var",express.c_str())) {
+                if (INVALID_VALUE!=express.find('=')) {
+                    variant_name=express.substr(3,express.find('=')-3);
+                    calcu_express=express.substr(express.find('=')+1);
+                } else {
+                    variant_name=express.substr(3,express.find(';')-3);
+                }
+            } else {
+                if (INVALID_VALUE!=express.find('=')) {
+                    variant_name=express.substr(0,express.find('='));
+                    calcu_express=express.substr(express.find('=')+1);
+                } else {
+                    variant_name=express.substr(3,express.find(';')-3);
+                }
+            }
             trim(variant_name);
-            string calcu_express(express.substr(express.find('=')+1));
 
-            if (!express_calcu(calcu_express))
-                return false;
+            if (!calcu_express.empty())
+                if (!express_calcu(calcu_express))
+                    return false;
             if (EXPRESSION_ARRAY==get_express_type(variant_name)) {
                 unsigned long calcu_result=0;
                 support_javascript_variant_type calcu_result_type=NONE;

@@ -6,7 +6,7 @@
 #include "javascript_envirment.h"
 #include "javascript_variant.h"
 
-bool eval_for(string express) {
+bool eval_for(string& express) {
     trim(express);
     if (check_string("for",express.c_str())) {
         //  for (var var_name=express;term;express) {code_block} or 
@@ -28,10 +28,16 @@ bool eval_for(string express) {
                     term=term.substr(0,term.find(';'));
                     express=express.substr(right_bracket_index+1);
                     trim(express);
-                    if ('{'==express[0] && '}'==express[get_matching_outside_right_brace(express,0)])  //  WARNING! ..matchin ERROR ..
-                        express=express.substr(1,express.length()-1);
-                    else if (INVALID_VALUE!=express.find(';'))
-                        express=express.substr(0,express.find(';'));
+                    unsigned long next_right_brace_index=get_matching_outside_right_brace(express,0);
+                    string for_execute_code_block;
+                    if ('{'==express[0] && '}'==express[next_right_brace_index]) {
+                        for_execute_code_block=express.substr(1,next_right_brace_index-1);
+                        express=express.substr(next_right_brace_index+1);
+                    } else if (INVALID_VALUE!=express.find(';')) {
+                        for_execute_code_block=express.substr(0,express.find(';'));
+                        express=express.substr(express.find(';')+1);
+                    }
+                    trim(for_execute_code_block);
                     trim(express);
 
                     while (true) {
@@ -42,7 +48,7 @@ bool eval_for(string express) {
                         get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&eval_result,&eval_result_type);
                         if (!eval_result)
                             break;
-                        if (!eval(express))
+                        if (!eval(for_execute_code_block))
                             return false;
                         if (!eval(for_express))
                             return false;
@@ -79,7 +85,7 @@ bool eval_if(string& express) {
 
     string if_inside_code_block;
     unsigned long matching_right_brace=get_matching_outside_right_brace(express,0);
-    if ('{'==express[0] && '}'==express[matching_right_brace]) {  //  WARNING! ..matchin ERROR ..
+    if ('{'==express[0] && '}'==express[matching_right_brace]) {
         if_inside_code_block=express.substr(0,matching_right_brace);
         express=express.substr(matching_right_brace+1);
         trim(express);
