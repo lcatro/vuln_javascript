@@ -321,7 +321,7 @@ static bool execute_function_call(string& express) {
     return eval_function(express);
 }
 
-static bool execute_calculation_term(string& express) {
+bool execute_calculation_term(string& express) {
     if (INVALID_VALUE!=express.find("==")) {
         if (express_calcu(express.substr(0,express.find("==")))) {
             copy_variant(JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_LEFT_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
@@ -426,6 +426,16 @@ static bool execute_calculation_term(string& express) {
                 }
             }
         }
+    } else {
+        if (!express.empty()) {
+            if (express_calcu(express)) {
+                unsigned long calcu_term_value=0;
+                support_javascript_variant_type calcu_term_value_type=NONE;
+                get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&calcu_term_value,&calcu_term_value_type);
+                if (calcu_term_value)
+                    return true;
+            }
+        }
     }
     return false;
 }
@@ -438,10 +448,10 @@ bool express_calcu(string express) {
     } else if (execute_function_call(express)) {
         copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
         return true;
-    } else if (execute_calculation_term(express)) {
+    }/* else if (execute_calculation_term(express)) {
         copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
         return true;
-    }
+    }*/
     express_type express_type_=get_express_type(express);
     if (EXPRESSION_UNKNOW!=express_type_) {
         if (EXPRESSION_NUMBER_DECIMAL==express_type_) {

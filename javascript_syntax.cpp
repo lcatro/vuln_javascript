@@ -43,7 +43,7 @@ bool eval_for(string& express) {
                     trim(express);
 
                     while (true) {
-                        if (!express_calcu(term))
+                        if (!execute_calculation_term(term))
                             return false;
                         unsigned long eval_result=0;
                         support_javascript_variant_type eval_result_type=NONE;
@@ -75,7 +75,7 @@ bool eval_if(string& express) {
     }
     trim(express);
 
-    unsigned long left_bracket_index=express.find('('),right_bracket_index=express.find(')');
+    unsigned long left_bracket_index=express.find('('),right_bracket_index=get_matching_outside_right_bracket(express,0);
     string if_term;
     if (INVALID_VALUE!=left_bracket_index && INVALID_VALUE!=right_bracket_index) {  //  check if term syntax ..
         if_term=express.substr(left_bracket_index+1,right_bracket_index-left_bracket_index-1);
@@ -100,7 +100,7 @@ bool eval_if(string& express) {
     }
 
     if (!if_term.empty()) {
-        if (express_calcu(if_term)) {
+        if (execute_calculation_term(if_term)) {
             unsigned long term_calcu_result=0;
             support_javascript_variant_type term_calcu_result_type=NONE;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&term_calcu_result,&term_calcu_result_type);

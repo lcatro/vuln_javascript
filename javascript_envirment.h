@@ -11,5 +11,6 @@ using std::string;
 bool init_javascript_envirment(void);
 bool eval(string express);
 bool express_calcu(string express);
+bool execute_calculation_term(string& express);
 
 #endif

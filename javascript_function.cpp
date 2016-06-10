@@ -156,6 +156,14 @@ static bool string_object_length(string& object) {
     return true;
 }
 
+static bool array_object_length(string& object) {
+    base_array* array_class=NULL;
+    support_javascript_variant_type array_class_type=NONE;
+    get_variant(object,(void*)&array_class,&array_class_type);
+    set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)array_class->length(),NUMBER);
+    return true;
+}
+
 void init_native_function(void) {
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_CONSOLE]["log"].is_native_function=true;
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_CONSOLE]["log"].native_function=console_log;
@@ -225,6 +233,12 @@ static bool call_javascript_object_native_function(string base_object,string fun
                     return true;
                 }
             }
+        } else if (INT_ARRAY==variant_type) {
+            if ("length"==function_name)
+                return array_object_length(base_object);
+        } else if (OBJECT_ARRAY==variant_type) {
+            if ("length"==function_name)
+                return array_object_length(base_object);
         }
     }
     return false;
@@ -273,7 +287,8 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
     trim(express);
     unsigned long first_left_bracket_index=express.find('(');
     unsigned long match_right_bracket_index=get_matching_outside_right_bracket(express,0);
-    if (INVALID_VALUE==first_left_bracket_index || INVALID_VALUE==match_right_bracket_index)
+    unsigned long equal_index=express.find('=');
+    if (INVALID_VALUE==first_left_bracket_index || INVALID_VALUE==match_right_bracket_index || INVALID_VALUE!=equal_index)
         return false;
 
     string function_name(express.substr(0,first_left_bracket_index));
@@ -318,7 +333,7 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
         }
         trim(object_name);
         trim(function_name);
-        if (!is_exist_native_object(object_name) && is_exist_variant(object_name))
+        if (is_exist_variant(object_name))
             return call_javascript_object_native_function(object_name,function_name,function_argments_list);
         if (is_exist_native_object_function(object_name,function_name)) {
             if (local_function_table[object_name][function_name].is_native_function) {
