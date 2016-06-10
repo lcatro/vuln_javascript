@@ -23,6 +23,7 @@ typedef bool (*native_function_type)(function_argments& input_function_argments)
 typedef struct {
     bool is_native_function;
     native_function_type native_function;
+    function_argments javascript_argment_name;
     string javascript_code;
 } function_entry;
 typedef map<string,function_entry> object_function_table_;
@@ -155,10 +156,6 @@ static bool string_object_length(string& object) {
     return true;
 }
 
-bool add_javascript_function(string base_object,string function_name,string function_code) {
-    return false;
-}
-
 void init_native_function(void) {
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_CONSOLE]["log"].is_native_function=true;
     local_function_table[JAVASCRIPT_NATIVE_OBJECT_CONSOLE]["log"].native_function=console_log;
@@ -233,7 +230,42 @@ static bool call_javascript_object_native_function(string base_object,string fun
     return false;
 }
 
-bool eval_javascript_function(string express,function_argments function_argments_list) {
+bool add_javascript_function(string base_object,string function_name,string function_argments_express,string function_code) {
+    function_argments function_argments_list;
+    if (!function_argments_express.empty()) {
+        string function_argments_name;
+        while (INVALID_VALUE!=function_argments_express.find(',')) {
+            function_argments_name=function_argments_express.substr(0,function_argments_express.find(','));
+            trim(function_argments_name);
+            function_argments_list.push_back(function_argments_name);
+            function_argments_express=function_argments_express.substr(function_argments_express.find(',')+1);
+        }
+        trim(function_argments_express);
+        function_argments_list.push_back(function_argments_express);
+    }
+    local_function_table[base_object][function_name].is_native_function=false;
+    local_function_table[base_object][function_name].native_function=NULL;
+    local_function_table[base_object][function_name].javascript_argment_name=function_argments_list;
+    local_function_table[base_object][function_name].javascript_code=function_code;
+    return true;
+}
+
+static bool eval_javascript_function(string& object_name,string& function_name,function_argments function_argments_list) {
+    if (!local_function_table[object_name][function_name].is_native_function) {
+        unsigned long copy_function_argments_index=0;
+        unsigned long copy_function_argments_count=function_argments_list.size();
+
+        for (function_argments::iterator javascript_function_argments_name_index=local_function_table[object_name][function_name].javascript_argment_name.begin();
+                                         javascript_function_argments_name_index!=local_function_table[object_name][function_name].javascript_argment_name.end();
+                                         ++javascript_function_argments_name_index) {
+            if (copy_function_argments_index<copy_function_argments_count) {
+                copy_variant(*javascript_function_argments_name_index,function_argments_list[copy_function_argments_index++]);
+            } else {
+                set_variant(*javascript_function_argments_name_index,0,NONE);
+            }
+        }
+        return eval(local_function_table[object_name][function_name].javascript_code);
+    }
     return false;
 }
 
@@ -271,19 +303,6 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
     copy_variant(function_argment_variant_index,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
     function_argments_list.push_back(function_argment_variant_index);
 
-    if (INVALID_VALUE!=function_name.find('.')) {
-        string object_name(function_name.substr(0,function_name.find('.')));
-        string function_name(function_name.substr(function_name.find('.')+1));
-        trim(object_name);
-        trim(function_name);
-        if (!is_exist_native_object(object_name) && is_exist_variant(object_name))
-            return call_javascript_object_native_function(object_name,function_name,function_argments_list);
-        if (!is_exist_native_object_function(object_name,function_name))
-            return false;
-        if (local_function_table[object_name][function_name].is_native_function)
-            return local_function_table[object_name][function_name].native_function(function_argments_list);
-        return eval_javascript_function(local_function_table[object_name][function_name].javascript_code,function_argments_list);
-    }
     if (check_string("new",function_name.c_str())) {
         function_name=function_name.substr(4);
         trim(function_name);
@@ -291,6 +310,34 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
             return new_int_array(function_argments_list);
         else if ("ObjArray"==function_name)
             return new_obj_array(function_argments_list);
+    } else {
+        string object_name;
+        if (INVALID_VALUE!=function_name.find('.')) {
+            object_name=function_name.substr(0,function_name.find('.'));
+            function_name=function_name.substr(function_name.find('.')+1);
+        }
+        trim(object_name);
+        trim(function_name);
+        if (!is_exist_native_object(object_name) && is_exist_variant(object_name))
+            return call_javascript_object_native_function(object_name,function_name,function_argments_list);
+        if (is_exist_native_object_function(object_name,function_name)) {
+            if (local_function_table[object_name][function_name].is_native_function) {
+                return local_function_table[object_name][function_name].native_function(function_argments_list);
+            } else {
+                return eval_javascript_function(object_name,function_name,function_argments_list);
+            }
+        }
     }
     return true;
+}
+
+bool eval_function_return(string& express) {
+    unsigned long split_index=express.find(' ');
+    unsigned long end_index=express.find(';');
+    if (INVALID_VALUE!=split_index && INVALID_VALUE!=end_index) {
+        express_calcu(express.substr(split_index+1,end_index-split_index-1));
+        copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT);
+        return true;
+    }
+    return false;
 }

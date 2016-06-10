@@ -488,10 +488,18 @@ bool eval(string express) {
         return true;
     }
     bool base_javascript_syntax_execute_result=true;
-    if (check_string("for",express.c_str()))  //  base JavaScript syntax ..
+    if (check_string("for",express.c_str())) {  //  base JavaScript syntax ..
         base_javascript_syntax_execute_result=eval_for(express);
-    else if (check_string("if",express.c_str()))
+    } else if (check_string("if",express.c_str())) {
         base_javascript_syntax_execute_result=eval_if(express);
+    }
+    if (check_string("function",express.c_str())) {
+        base_javascript_syntax_execute_result=eval_decleare_function(express);
+        if (base_javascript_syntax_execute_result)
+            return eval(express);
+    } else if (check_string("return",express.c_str())) {
+        return eval_function_return(express);
+    }
 
     string next_express;
     if (INVALID_VALUE!=express.find(';')) {  //  put data ..
@@ -587,9 +595,6 @@ bool eval(string express) {
 
 bool init_javascript_envirment(void) {
     init_native_function();
-    /*
-    if (!init_heap())
-        return false;
-        */
+
     return true;
 }

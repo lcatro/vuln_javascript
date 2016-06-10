@@ -3,11 +3,13 @@
 
 #include "baselib_string.h"
 #include "javascript_base.h"
+#include "javascript_function.h"
 #include "javascript_envirment.h"
 #include "javascript_variant.h"
 
 bool eval_for(string& express) {
     trim(express);
+
     if (check_string("for",express.c_str())) {
         //  for (var var_name=express;term;express) {code_block} or 
         //  for (var var_name=express;term;express) code_line;
@@ -63,7 +65,7 @@ bool eval_for(string& express) {
 
 bool eval_if(string& express) {
     trim(express);
-    
+
     if (check_string("if",express.c_str())) {              //  if (term2) {if_inside_code_block_2}
         express=express.substr(2);                         //  ->(term2) {if_inside_code_block_2}
     } else if (check_string("else if",express.c_str())) {  //  else if (term2) {if_inside_code_block_2}
@@ -112,4 +114,26 @@ bool eval_if(string& express) {
     }
 
     return true;
+}
+
+bool eval_decleare_function(string& express) {
+    trim(express);  //  function function_name(function_argment_list) {function_code_block};
+
+    express=express.substr(8);  //  function_name(function_argment_list) {function_code_block};
+    trim(express);
+    unsigned long left_bracket_index=express.find('('),right_bracket_index=express.find(')');
+    if (INVALID_VALUE!=left_bracket_index && INVALID_VALUE!=right_bracket_index) {
+        string function_name(express.substr(0,left_bracket_index));
+        string function_argment(express.substr(left_bracket_index+1,right_bracket_index-left_bracket_index-1));
+        express=express.substr(right_bracket_index+1);  //  {function_code_block};
+        trim(express);
+        unsigned long matching_right_brace=get_matching_outside_right_brace(express,0);  //  all thinks packet success ,just pick these string and call ..
+        if ('{'==express[0] && '}'==express[matching_right_brace]) {
+            add_javascript_function("",function_name,function_argment,express.substr(1,matching_right_brace-1));
+            express=express.substr(matching_right_brace+1);
+            trim(express);
+            return true;
+        }
+    }
+    return false;
 }

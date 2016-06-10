@@ -12,5 +12,6 @@
 #define JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT   "_calcu_temp_variant_"
 #define JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_LEFT_RESULT  "_express_left_result_"
 #define JAVASCRIPT_VARIANT_KEYNAME_EXPRESS_RIGHT_RESULT "_express_right_result_"
-
+#define JAVASCRIPT_VARIANT_KEYNAME_ANONYMOUS_FUNCTION   "_anonymous_function_"
+ 
 #endif

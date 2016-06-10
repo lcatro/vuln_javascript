@@ -8,6 +8,7 @@
 using std::string;
 #endif
 
+bool eval_decleare_function(string& express);
 bool eval_for(string& express);
 bool eval_if(string& express);
 

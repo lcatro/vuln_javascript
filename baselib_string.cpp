@@ -13,14 +13,17 @@ using std::string;
 void trim(string& input_string) {
     for (string::iterator index =input_string.begin();
                           index!=input_string.end();
-                          ++index)
-        if (' '==*index)
+                          ) {
+        if (' '==*index) {
             input_string.erase(index);
-        else
+            index=input_string.begin();
+        } else {
             break;
+        }
+    }
     for (string::reverse_iterator rindex =input_string.rbegin();
                                   rindex!=input_string.rend();
-                                  ++rindex) {
+                                  ) {
         if (' '==*rindex) { 
             input_string.erase((++rindex).base());
             rindex=input_string.rbegin();
