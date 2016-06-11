@@ -25,11 +25,15 @@ global_javascript_variant_table_ global_javascript_variant_table;
 
 unsigned long get_variant_index(string& variant_name) {
     unsigned long index=0;
-    for (global_javascript_variant_table_::iterator variant_table_iterator=global_javascript_variant_table.begin();
-         variant_table_iterator!=global_javascript_variant_table.end();
-         ++variant_table_iterator,++index)
-        if (variant_name==variant_table_iterator->first)
-            return index;
+    try {
+        for (global_javascript_variant_table_::iterator variant_table_iterator=global_javascript_variant_table.begin();
+                                                        variant_table_iterator!=global_javascript_variant_table.end();
+                                                        ++variant_table_iterator,++index)
+            if (variant_name==variant_table_iterator->first)
+                return index;
+    } catch (...) {
+        //  i dont know why iterate global_javascript_variant_table will make error of access exception ..
+    }
     return INVALID_VALUE;
 }
 

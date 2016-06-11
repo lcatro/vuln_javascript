@@ -333,6 +333,7 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
         }
         trim(object_name);
         trim(function_name);
+        printf("object_name:%s function_name:%s\n",object_name.c_str(),function_name.c_str());
         if (is_exist_variant(object_name))
             return call_javascript_object_native_function(object_name,function_name,function_argments_list);
         if (is_exist_native_object_function(object_name,function_name)) {
@@ -342,6 +343,7 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
                 return eval_javascript_function(object_name,function_name,function_argments_list);
             }
         }
+        printf("ERR");
     }
     return true;
 }

@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+
 #include "baselib_string.h"
 #include "javascript_array.h"
 
