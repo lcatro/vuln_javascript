@@ -46,12 +46,14 @@
 ###vuln_javacript 使用
 
 ---
+
 `vuln_javacript.exe` 编译完成的EXE 在`/Release` 路径下可以找到(编译IDE 环境:VC++ 6 ,没有导入任何其它库).<br/><br/>
 `vuln_javacript.exe` 可以选择带参数运行,指定的参数为即将要执行的JavaScript 代码文件路径,例子:<br/><br/>
 ![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/example_using_run_file.png)<br/><br/>
 `vuln_javacript.exe` 也可以不带参数运行,默认以控制台的形式执行代码,例子:<br/><br/>
 ![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/example_using_console_mode.png)<br/><br/>
-退出控制台模式的命令为`quit` ..
+退出控制台模式的命令为`quit` ..<br/><br/>
+**WARNING!** 有个关于Array 使用的Bug (应用程序崩溃),因为VC++ 6 本身的STL 库设计问题,以后会移植到VC++ 8 ..
 
 ###vuln_javascript 执行例子
 
@@ -88,9 +90,10 @@ Example 3 -- 简单的函数调用: <br/>
     output(calcu());
     console.log('exit!..');
 
+###漏洞利部分
+
 ---
 
-漏洞利用分为两部分:<br/><br/>
 1.UaF 原理部分(Use after Free ,重复使用已经被释放了的类)<br/><br/>
 所有的HTML 元素在浏览器的内部都是一个类的实例.在`vuln_javascript` 中,所有关于HTML 元素的操作都在`javascript_element.cpp` 这个文件里面.img 和div 元素继承HTML 基础元素,同时HTML 基础元素类向下提供一些HTML 元素的通用函数实现方法(也就是`getAttribute()` ,`setAttribute()` 和`remove()`).<br/>
 Uaf 的原理是:**当HTML 元素调用了remove() 删除自身并且在堆中释放内存之后,在接下来的代码执行流程中再次调用已经被释放的类时,将会引发释放后重用的漏洞(Use after Free)**<br/>
