@@ -20,7 +20,7 @@ enum express_type {
 };
 
 static long get_next_calculation_flag(string& express) {
-    if (INVALID_VALUE!=express.find("("))
+    if (INVALID_VALUE!=express.find("(") && ')'!=express[express.find("(")+1])  //  not function call => xxx()
         return express.find("(");
     else if (INVALID_VALUE!=express.find("+"))
         return express.find("+");
@@ -124,17 +124,33 @@ static bool execute_calculation_express(string& express) {
                 connect_string+=right_express;
                 set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)connect_string.c_str(),STRING);
             }
-        } else if (EXPRESSION_STRING==left_express_type && EXPRESSION_STRING==right_express_type) {
-            string connect_string;
+        } else if (EXPRESSION_STRING==left_express_type && EXPRESSION_STRING==right_express_type) {  //  alloc in heap ..
+            //string connect_string;
+            unsigned long connect_string_length=0;
             if (NONE!=left_express_calcu_value_type)
-                connect_string=(const char*)left_express_calcu_value;
+                connect_string_length=strlen((char*)left_express_calcu_value);
             else
-                connect_string=left_express;
+                connect_string_length=left_express.length();
             if (NONE!=right_express_calcu_value_type)
-                connect_string+=(const char*)right_express_calcu_value;
+                connect_string_length+=strlen((char*)right_express_calcu_value);
             else
-                connect_string=right_express;
-            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)connect_string.c_str(),STRING);
+                connect_string_length+=right_express.length();
+
+            char* connect_string=(char*)alloc_memory(connect_string_length+1);
+            unsigned long copy_offset=0;
+            if (NONE!=left_express_calcu_value_type) {
+                copy_offset=strlen((char*)left_express_calcu_value);
+                memcpy(connect_string,(const void*)left_express_calcu_value,copy_offset);
+            } else {
+                copy_offset=left_express.length();
+                memcpy(connect_string,left_express.c_str(),copy_offset);
+            }
+            if (NONE!=right_express_calcu_value_type)
+                memcpy((void*)((unsigned long)connect_string+copy_offset),(const void*)right_express_calcu_value,strlen((char*)right_express_calcu_value));
+            else
+                memcpy((void*)((unsigned long)connect_string+copy_offset),right_express.c_str(),right_express.length());
+
+            set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)connect_string,STRING);
         } else {
             long left_express_value=0;
             if (NONE!=left_express_calcu_value_type) {
@@ -448,7 +464,7 @@ bool express_calcu(string express) {
     } else if (execute_function_call(express)) {
         copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
         return true;
-    }/* else if (execute_calculation_term(express)) {
+    }/* else if (execute_calculation_term(express)) {  //  WARNING ,it will crash because of STL lib ..
         copy_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
         return true;
     }*/
@@ -523,36 +539,28 @@ bool eval(string express) {
             if (INVALID_VALUE!=express.find("+=")) {  //  asd+=123 -> asd=asd+123
                 string variant_name(express.substr(0,express.find("+=")));
                 trim(variant_name);
-                if (eval(variant_name+"="+variant_name+"+"+express.substr(express.find("+=")+2)))
-                    copy_variant(variant_name,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
-                else
+                if (!eval(variant_name+"="+variant_name+"+"+express.substr(express.find("+=")+2)))
                     return false;
             }
         } else if ('-'==calcu_flag) {
             if (INVALID_VALUE!=express.find("-=")) {  //  asd+=123 -> asd=asd+123
                 string variant_name(express.substr(0,express.find("-=")));
                 trim(variant_name);
-                if (eval(variant_name+"="+variant_name+"-"+express.substr(express.find("-=")+2)))
-                    copy_variant(variant_name,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
-                else
+                if (!eval(variant_name+"="+variant_name+"-"+express.substr(express.find("-=")+2)))
                     return false;
             }
         } else if ('*'==calcu_flag) {
             if (INVALID_VALUE!=express.find("*=")) {  //  asd+=123 -> asd=asd+123
                 string variant_name(express.substr(0,express.find("*=")));
                 trim(variant_name);
-                if (eval(variant_name+"="+variant_name+"*"+express.substr(express.find("*=")+2)))
-                    copy_variant(variant_name,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
-                else
+                if (!eval(variant_name+"="+variant_name+"*"+express.substr(express.find("*=")+2)))
                     return false;
             }
         } else if ('/'==calcu_flag) {
             if (INVALID_VALUE!=express.find("/=")) {  //  asd+=123 -> asd=asd+123
                 string variant_name(express.substr(0,express.find("/=")));
                 trim(variant_name);
-                if (eval(variant_name+"="+variant_name+"/"+express.substr(express.find("/=")+2)))
-                    copy_variant(variant_name,JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT);
-                else
+                if (!eval(variant_name+"="+variant_name+"/"+express.substr(express.find("/=")+2)))
                     return false;
             }
         } else {
@@ -605,6 +613,9 @@ bool eval(string express) {
 
 bool init_javascript_envirment(void) {
     init_native_function();
-
+#ifdef HEAP_ALLOC
+    return init_heap();
+#else
     return true;
+#endif
 }

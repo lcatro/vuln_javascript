@@ -8,14 +8,21 @@
 
 #define PLATFORM_WINDOWS
 
-
 #ifdef PLATFORM_WINDOWS
 
 #ifndef _WINDOWS_
 #include <windows.h>
 #endif
 
-extern HANDLE heap_handle;
+#endif
+
+
+//#define HEAP_ALLOC  //  use HeapAlloc not VritualAlloc
+#ifdef HEAP_ALLOC
+
+#define HEAP_SIZE (200*1024*1024)
+#define HEAP_CREATE_ENABLE_EXECUTE 0x00040000
+
 #endif
 
 #endif

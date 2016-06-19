@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <map>
+#include <new>
 
 #include "baselib_string.h"
 #include "javascript_array.h"
@@ -41,11 +42,11 @@ static bool console_log(function_argments& input_function_argments) {
         else if (STRING==argment_data_type)
             printf("%s\n",argment_data);
         else if (INT_ARRAY==argment_data_type)
-            printf("unsupport ARRAY\n",argment_data);
+            printf("int_array_addr:%X\n",argment_data);
         else if (OBJECT_ARRAY==argment_data_type)
-            printf("unsupport ARRAY\n",argment_data);
+            printf("object_array_addr:%X\n",argment_data);
         else if (OBJECT==argment_data_type)
-            printf("unsupport object\n",argment_data);
+            printf("object_addr:%X\n",argment_data);
         else
             printf("undefine\n");
     }
@@ -63,12 +64,15 @@ static bool document_createElement(function_argments& input_function_argments) {
     support_javascript_variant_type argment_element_type=NONE;
     get_variant(input_function_argments[0],(void*)&argment_element,&argment_element_type);
 
-    if (!strcmp("img",(const char*)argment_element))
-        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new img_element(),OBJECT);
-    else if (!strcmp("div",(const char*)argment_element))
-        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new div_element(),OBJECT);
-    else
+    if (!strcmp("img",(const char*)argment_element)) {
+        img_element* img_element_object=new (alloc_memory(sizeof(img_element))) img_element;  //  new to consume heap ..
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)img_element_object,OBJECT);
+    } else if (!strcmp("div",(const char*)argment_element)) {
+        div_element* div_element_object=new (alloc_memory(sizeof(div_element))) div_element;
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)div_element_object,OBJECT);
+    } else {
         return false;
+    }
     return true;
 }
 
@@ -131,11 +135,12 @@ static bool string_object_substr(string& object,function_argments& input_functio
             unsigned long argment_length=0;
             if (2==input_function_argments.size()) {  //  substr(offset,length)
                 support_javascript_variant_type argment_length_type=NONE;
-                get_variant(input_function_argments[0],(void*)&argment_length,&argment_length_type);
+                get_variant(input_function_argments[1],(void*)&argment_length,&argment_length_type);
+                string_buffer_length=argment_length;
             } else {
-                argment_length=string_buffer_length-argment_offset;
+                string_buffer_length=string_buffer_length-argment_offset;
             }
-            char* temp_string_buffer=(char*)alloc_memory(argment_length+1);
+            char* temp_string_buffer=(char*)alloc_memory(string_buffer_length+1);
             if (NULL!=temp_string_buffer) {
                 memcpy(temp_string_buffer,(const char*)string_buffer,argment_length);
                 set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)temp_string_buffer,STRING);
@@ -333,7 +338,6 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
         }
         trim(object_name);
         trim(function_name);
-        printf("object_name:%s function_name:%s\n",object_name.c_str(),function_name.c_str());
         if (is_exist_variant(object_name))
             return call_javascript_object_native_function(object_name,function_name,function_argments_list);
         if (is_exist_native_object_function(object_name,function_name)) {
@@ -343,7 +347,6 @@ bool eval_function(string express) {  //  console.log(express); or console.log(e
                 return eval_javascript_function(object_name,function_name,function_argments_list);
             }
         }
-        printf("ERR");
     }
     return true;
 }

@@ -10,6 +10,8 @@
 
 using std::string;
 
+HANDLE heap_handle=NULL;
+
 void trim(string& input_string) {
     for (string::iterator index =input_string.begin();
                           index!=input_string.end();
@@ -35,9 +37,14 @@ void trim(string& input_string) {
         input_string.erase((++input_string.rbegin()).base());
 }
 
-long hex_string_to_number(string& input_string) {
+long hex_string_to_number(const string& input_string) {
     char* end_point=NULL;
     return strtol(input_string.c_str(),&end_point,16);
+}
+
+long hex_string_to_number(const char* input_string) {
+    char* end_point=NULL;
+    return strtol(input_string,&end_point,16);
 }
 
 bool check_string(const char* input_string1,const char* input_string2) {
@@ -89,13 +96,33 @@ void filter_useless_char(string& express) {
     }
 }
 
+bool init_heap(void) {
+#ifdef HEAP_ALLOC
+#ifdef HEAP_EXECUTE_PROTECT
+    heap_handle=HeapCreate(NULL,HEAP_SIZE,0);
+#else
+    heap_handle=HeapCreate(HEAP_CREATE_ENABLE_EXECUTE,HEAP_SIZE,0);
+#endif
+    if (NULL!=heap_handle)
+        return true;
+    return false;
+#else
+    return true;
+#endif
+}
+
 void* alloc_memory(unsigned long alloc_length) {
     alloc_length=(alloc_length<4)?4:alloc_length;
     void* alloc_address=NULL;
+    
+#ifdef HEAP_ALLOC
+    alloc_address=HeapAlloc(heap_handle,HEAP_ZERO_MEMORY,alloc_length);
+#else
 #ifdef HEAP_EXECUTE_PROTECT
     alloc_address=VirtualAlloc(NULL,alloc_length,NULL,PAGE_READWRITE);
 #else
     alloc_address=VirtualAlloc(NULL,alloc_length,NULL,PAGE_EXECUTE_READWRITE);
+#endif
 #endif
     if (NULL==alloc_address)
         alloc_address=malloc(alloc_length);
@@ -106,4 +133,26 @@ void* alloc_memory(unsigned long alloc_length) {
 
 void free_memory(void* alloc_buffer) {
     VirtualFreeEx((void*)-1,alloc_buffer,NULL,NULL);
+}
+
+void conver_coding(char* input_string) {
+    unsigned long input_string_length=strlen(input_string);
+    for (unsigned long input_string_index=0;
+                       input_string_index<input_string_length;
+                       ++input_string_index) {
+        if ('%'==input_string[input_string_index] &&
+            'u'==input_string[input_string_index+1]) {
+            if (input_string_index+6<input_string_length) {
+                char bit1_string[3]={input_string[input_string_index+2],input_string[input_string_index+3],0};
+                char bit2_string[3]={input_string[input_string_index+4],input_string[input_string_index+5],0};
+                char bit1=(char)hex_string_to_number(bit1_string);
+                char bit2=(char)hex_string_to_number(bit2_string);
+                input_string[input_string_index]=bit2;
+                input_string[input_string_index+1]=bit1;
+                memcpy(&input_string[input_string_index+2],&input_string[input_string_index+6],input_string_length-input_string_index-4+1);  //  +1 for \0
+            } else {
+                return;
+            }
+        }
+    }
 }

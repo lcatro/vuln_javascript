@@ -16,6 +16,10 @@ enum support_javascript_variant_type {
 #endif
 
 typedef tagVARIANT javascript_variant_struct;
+typedef struct {
+    unsigned long string_length;
+    char* string_data;
+} javascript_variant_string;
 
 #ifndef _STRING_
 #include <string>
