@@ -136,11 +136,10 @@ static bool string_object_substr(string& object,function_argments& input_functio
             if (2==input_function_argments.size()) {  //  substr(offset,length)
                 support_javascript_variant_type argment_length_type=NONE;
                 get_variant(input_function_argments[1],(void*)&argment_length,&argment_length_type);
-                string_buffer_length=argment_length;
             } else {
-                string_buffer_length=string_buffer_length-argment_offset;
+                argment_length=string_buffer_length-argment_offset;
             }
-            char* temp_string_buffer=(char*)alloc_memory(string_buffer_length+1);
+            char* temp_string_buffer=(char*)alloc_memory(argment_length+1);
             if (NULL!=temp_string_buffer) {
                 memcpy(temp_string_buffer,(const char*)string_buffer,argment_length);
                 set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)temp_string_buffer,STRING);
@@ -234,7 +233,7 @@ static bool call_javascript_object_native_function(string base_object,string fun
                     unsigned long attribute_name=0;
                     support_javascript_variant_type attribute_name_type=NONE;
                     get_variant(function_argments_list[0],(void*)&attribute_name,&attribute_name_type);
-                    element_object->getAttribute((const char*)attribute_name);
+                    element_object->getAttribute((const char*)attribute_name);  //  WARNING! 有个地方占用了free 之后的东西,记得分析..
                     return true;
                 }
             }

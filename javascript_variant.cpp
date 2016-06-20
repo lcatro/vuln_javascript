@@ -66,11 +66,13 @@ void set_variant(string variant_name,void* variant_data,support_javascript_varia
         global_javascript_variant_table[variant_name].vt=STRING;
         conver_coding((char*)variant_data);
         global_javascript_variant_table[variant_name].wReserved3=sizeof(int);
+
         unsigned long alloc_length=sizeof(javascript_variant_string)+strlen((const char*)variant_data)+1;
         void* alloc_address=alloc_memory(alloc_length);
         ((javascript_variant_string*)alloc_address)->string_length=strlen((const char*)variant_data);
         ((javascript_variant_string*)alloc_address)->string_data=(char*)((unsigned long)alloc_address+sizeof(javascript_variant_string));
         memcpy((void*)((unsigned long)alloc_address+sizeof(javascript_variant_string)),variant_data,alloc_length-sizeof(javascript_variant_string));
+
         global_javascript_variant_table[variant_name].ulVal=(unsigned long)alloc_address;
     } else if (INT_ARRAY==variant_type) {
         global_javascript_variant_table[variant_name].vt=INT_ARRAY;

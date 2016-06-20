@@ -132,7 +132,11 @@ void* alloc_memory(unsigned long alloc_length) {
 }
 
 void free_memory(void* alloc_buffer) {
-    VirtualFreeEx((void*)-1,alloc_buffer,NULL,NULL);
+#ifdef HEAP_ALLOC
+    HeapFree(heap_handle,NULL,alloc_buffer);
+#else
+    VirtualFree(alloc_buffer,NULL,NULL);
+#endif
 }
 
 void conver_coding(char* input_string) {

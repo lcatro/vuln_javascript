@@ -65,18 +65,19 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type left_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==left_express_type)  //  12kk4+321 or +321
             return false;
-        if (EXPRESSION_EXPRESS==left_express_type || EXPRESSION_VARIANT==left_express_type) {  //  (123+321)+1
+        if (EXPRESSION_VARIANT==left_express_type) {
+            get_variant(left_express,(void*)&left_express_calcu_value,&left_express_calcu_value_type);
+        } else if (EXPRESSION_EXPRESS==left_express_type) {  //  (123+321)+1
             if (!execute_calculation_express(left_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&left_express_calcu_value,&left_express_calcu_value_type);
-            if (NUMBER==left_express_calcu_value_type) {
-                left_express_type=EXPRESSION_NUMBER_DECIMAL;
-            } else {
-                left_express_type=EXPRESSION_STRING;
-                left_express=(const char*)left_express_calcu_value;
-            }
         } else if (EXPRESSION_STRING==left_express_type) { //  'AAA'+'A'
             left_express=left_express.substr(1,left_express.length()-2);
+        }
+        if (NUMBER==left_express_calcu_value_type) {
+            left_express_type=EXPRESSION_NUMBER_DECIMAL;
+        } else {
+            left_express_type=EXPRESSION_STRING;
         }
 
         string right_express(express.substr(next_calculation_flag+1));
@@ -86,18 +87,19 @@ static bool execute_calculation_express(string& express) {
         support_javascript_variant_type right_express_calcu_value_type=NONE;
         if (EXPRESSION_UNKNOW==right_express_type)  //  321+12kk4 or 321+
             return false;
-        if (EXPRESSION_EXPRESS==right_express_type || EXPRESSION_VARIANT==right_express_type) {  //  123+123+123
+        if (EXPRESSION_VARIANT==right_express_type) {
+            get_variant(right_express,(void*)&right_express_calcu_value,&right_express_calcu_value_type);
+        } else if (EXPRESSION_EXPRESS==right_express_type) {  //  123+123+123
             if (!execute_calculation_express(right_express))
                 return false;
             get_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)&right_express_calcu_value,&right_express_calcu_value_type);
-            if (NUMBER==right_express_calcu_value_type) {
-                right_express_type=EXPRESSION_NUMBER_DECIMAL;
-            } else {
-                right_express_type=EXPRESSION_STRING;
-                right_express=(const char*)right_express_calcu_value;
-            }
         } else if (EXPRESSION_STRING==right_express_type) {  //  'AAA'+'A'
             right_express=right_express.substr(1,right_express.length()-2);
+        }
+        if (NUMBER==right_express_calcu_value_type) {
+            right_express_type=EXPRESSION_NUMBER_DECIMAL;
+        } else {
+            right_express_type=EXPRESSION_STRING;
         }
         //  123+123 or (123+321)+123+123 or '123'+'123' or '123'+123
         if (EXPRESSION_STRING==left_express_type && EXPRESSION_STRING!=right_express_type) {

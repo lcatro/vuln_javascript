@@ -16,8 +16,8 @@
 
 #endif
 
-
-//#define HEAP_ALLOC  //  use HeapAlloc not VritualAlloc
+#define HEAP_ALLOC_BASE_ADDRESS 0x01000000
+#define HEAP_ALLOC  //  use HeapAlloc not VritualAlloc
 #ifdef HEAP_ALLOC
 
 #define HEAP_SIZE (200*1024*1024)

@@ -3,6 +3,8 @@
 
 #include <memory.h>
 
+#include "baselib_string.h"
+#include "global_setting.h"
 #include "javascript_base.h"
 #include "javascript_element.h"
 #include "javascript_variant.h"
@@ -16,7 +18,11 @@ base_element::~base_element() {
 }
 
 void base_element::remove(void) {
+#ifdef HEAP_ALLOC
+    free_memory(this);
+#else
     delete this;
+#endif
 }
 
 void base_element::getAttribute(string attribute) {
