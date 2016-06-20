@@ -78,14 +78,16 @@ static bool document_createElement(function_argments& input_function_argments) {
 
 static bool new_int_array(function_argments& input_function_argments) {
     if (input_function_argments.empty()) {  //  new IntArray();
-        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new int_array(),INT_ARRAY);
+        int_array* int_array_object=new (alloc_memory(sizeof(int_array))) int_array;  //  new to consume heap ..
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)int_array_object,INT_ARRAY);
     } else if (1==input_function_argments.size()) {  //  new IntArray(1);
         unsigned long argment_array_length=0;
         support_javascript_variant_type argment_array_length_type=NONE;
         get_variant(input_function_argments[0],(void*)&argment_array_length,&argment_array_length_type);
         if (NUMBER!=argment_array_length_type)
             return false;
-        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new int_array(argment_array_length),INT_ARRAY);
+        int_array* int_array_object=new (alloc_memory(sizeof(int_array))) int_array(argment_array_length);
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)int_array_object,INT_ARRAY);
     } else {  //  new IntArray(1,2,3,4,...);
         int_array* int_array_class=new int_array(input_function_argments.size());
         unsigned long init_array_index=0;
@@ -106,14 +108,16 @@ static bool new_int_array(function_argments& input_function_argments) {
 
 static bool new_obj_array(function_argments& input_function_argments) {
     if (input_function_argments.empty()) {  //  new ObjArray();
-        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new object_array(),OBJECT_ARRAY);
+        object_array* object_array_object=new (alloc_memory(sizeof(object_array))) object_array;
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)object_array_object,OBJECT_ARRAY);
     } else if (1==input_function_argments.size()) {  //  new ObjArray(1);
         unsigned long argment_array_length=0;
         support_javascript_variant_type argment_array_length_type=NONE;
         get_variant(input_function_argments[0],(void*)&argment_array_length,&argment_array_length_type);
         if (NUMBER!=argment_array_length_type)
             return false;
-        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)new object_array(argment_array_length),OBJECT_ARRAY);
+        object_array* object_array_object=new (alloc_memory(sizeof(object_array))) object_array(argment_array_length);
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)object_array_object,OBJECT_ARRAY);
     }
     return true;
 }
