@@ -18,7 +18,7 @@
     element.getAttribute();    获取属性
     element.setAttribute();    设置属性
     
-    支持的对像内部函数 :
+    支持的对象内部函数 :
     string.substr(offest);     截取字符串
     string.substr(offest,len); 截取字符串
     string.length();           获取字符串长度
@@ -95,7 +95,7 @@ Example 3 -- 简单的函数调用: <br/>
     output(calcu());
     console.log('exit!..');
 
-###漏洞利部分
+###漏洞利用部分
 
 ---
 
@@ -143,7 +143,7 @@ console.log(read_out_of_bound);
 ![read_out_of_bound_memcpy](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_memcpy.png)<br/><br/>
 可以看到,`substr()` 的`offset` 参数的设置使得`memcpy()` 直接读取到string 对象的NULL 结束符的位置,然后到`javascript_function.cpp console_log()` 中设置断点,可以看到即将要输出到控制台的read_out_of_bound 对象的内容<br/><br/>
 ![read_out_of_bound_output](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_output.png)<br/><br/>
-那么我们可以构造两个String 对象,让第一个String 越界读取到第二个String 对像里面,当我们声名了两个String 对象时,堆里面的内容如下<br/>
+那么我们可以构造两个String 对象,让第一个String 越界读取到第二个String 对象里面,当我们声名了两个String 对象时,堆里面的内容如下<br/>
 声名两个String 对象示例代码:
 ```javascript
 var first_string='test string';
@@ -173,7 +173,7 @@ console.log(read_data);
 可以看到,我们已经控制`substr()` 读取到了`read_string` 的内容了<br/><br/>
 ![read_out_of_bound_memcpy_read_data_output](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_memcpy_read_data_output.png)<br/><br/>
 由于我们读取的是4 字节的数据,要想完全读取`read_data` 的内容,只需要把`first_string.substr(0x30,4)` 修改为`first_string.substr(0x30,read_string.length())` 即可<br/><br/>
-但是只读到内容并没有什么用途,根据之前的分析,我们可以跨过去读取一个对像的信息,比如这样:<br/>
+但是只读到内容并没有什么用途,根据之前的分析,我们可以跨过去读取一个对象的信息,比如这样:<br/>
 substr() 越界读取object 虚函数表:
 ```javascript
 var first_string='test string';
@@ -185,6 +185,6 @@ console.log(read_data);
 ![read_out_of_bound_object](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_object.png)<br/><br/>
 然后再到`javascript_function.cpp string_object_substr()` 中观察`memcpy()` ,发现虚函数表已经复制到变量里面中去了<br/><br/>
 ![read_out_of_bound_read_object_virtual_table](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_read_object_virtual_table.png)<br/><br/>
-因为`substr()` 是以String 对像读取出来的,所以会输出的时候会显示错误<br/><br/>
+因为`substr()` 是以String 对象读取出来的,所以会输出的时候会显示错误<br/><br/>
 ![read_out_of_bound_read_object_output](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_read_object_output.png)<br/><br/>
 TIPS! 所有的测试都在`Debug` 选项下的`Debug` 模式下进行..
