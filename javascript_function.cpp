@@ -145,7 +145,8 @@ static bool string_object_substr(string& object,function_argments& input_functio
             }
             char* temp_string_buffer=(char*)alloc_memory(argment_length+1);
             if (NULL!=temp_string_buffer) {
-                memcpy(temp_string_buffer,(const char*)string_buffer,argment_length);
+                unsigned long copy_address=(unsigned long)string_buffer+argment_offset;
+                memcpy(temp_string_buffer,(const char*)copy_address,argment_length);
                 set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)temp_string_buffer,STRING);
                 free_memory(temp_string_buffer);
                 return true;

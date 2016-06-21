@@ -74,7 +74,8 @@ static bool execute_calculation_express(string& express) {
         } else if (EXPRESSION_STRING==left_express_type) { //  'AAA'+'A'
             left_express=left_express.substr(1,left_express.length()-2);
         }
-        if (NUMBER==left_express_calcu_value_type) {
+        if (NUMBER==left_express_calcu_value_type || 
+            EXPRESSION_NUMBER_DECIMAL==left_express_type || EXPRESSION_NUMBER_HEX==left_express_type) {
             left_express_type=EXPRESSION_NUMBER_DECIMAL;
         } else {
             left_express_type=EXPRESSION_STRING;
@@ -96,7 +97,8 @@ static bool execute_calculation_express(string& express) {
         } else if (EXPRESSION_STRING==right_express_type) {  //  'AAA'+'A'
             right_express=right_express.substr(1,right_express.length()-2);
         }
-        if (NUMBER==right_express_calcu_value_type) {
+        if (NUMBER==right_express_calcu_value_type || 
+            EXPRESSION_NUMBER_DECIMAL==right_express_type || EXPRESSION_NUMBER_HEX==right_express_type) {
             right_express_type=EXPRESSION_NUMBER_DECIMAL;
         } else {
             right_express_type=EXPRESSION_STRING;
