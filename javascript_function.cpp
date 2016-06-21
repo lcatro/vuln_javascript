@@ -237,7 +237,7 @@ static bool call_javascript_object_native_function(string base_object,string fun
                     unsigned long attribute_name=0;
                     support_javascript_variant_type attribute_name_type=NONE;
                     get_variant(function_argments_list[0],(void*)&attribute_name,&attribute_name_type);
-                    element_object->getAttribute((const char*)attribute_name);  //  WARNING! 有个地方占用了free 之后的东西,记得分析..
+                    element_object->getAttribute((const char*)attribute_name);
                     return true;
                 }
             }

@@ -16,9 +16,9 @@ bool eval_for(string& express) {
         express=express.substr(3);
         trim(express);
         unsigned long left_bracket_index=express.find('(');
-        unsigned long right_bracket_index=express.find(')');
+        unsigned long right_bracket_index=get_matching_outside_right_bracket(express,0);
         if (INVALID_VALUE!=left_bracket_index && INVALID_VALUE!=right_bracket_index) {
-            string term(express.substr(left_bracket_index+1,right_bracket_index-left_bracket_index-1));
+            string term(express.substr(left_bracket_index+1,right_bracket_index-left_bracket_index));
             trim(term);
             unsigned long split_index=term.find(';');
             if (INVALID_VALUE!=split_index) {
@@ -26,7 +26,8 @@ bool eval_for(string& express) {
                 term=term.substr(split_index+1);
                 split_index=term.find(';');
                 if (INVALID_VALUE!=split_index) {
-                    string for_express(term.substr(term.find(';')+1));
+                    string for_express(term.substr(split_index+1));
+                    for_express=for_express.substr(0,for_express.length()-1);
                     term=term.substr(0,term.find(';'));
                     express=express.substr(right_bracket_index+1);
                     trim(express);
