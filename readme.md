@@ -105,15 +105,15 @@ Uaf 的原理是:**当HTML 元素调用了remove() 删除自身并且在堆中�
 
 
 ####2.Read /Write Out of Bound 原理部分(越界读写)<br/><br/>
-假设我们有两个数组:<br/>
-![buffer](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/buffer.png)<br/>
-在真实的环境中,这两个数组是有可能是相连的<br/>
-![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/buffer_in_memory.png)<br/>
-通常情况下,我们都可以正常访问buffer1 里面的数据,假设往buffer1 里面读写数据的时候的时候一不小心就越过了buffer1 本来的长度到了buffer2 呢?<br/>
-![read_write_out_of_buffer1](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_write_out_of_buffer1.png)<br/>
+假设我们有两个数组:<br/><br/>
+![buffer](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/buffer.png)<br/><br/>
+在真实的环境中,这两个数组是有可能是相连的<br/><br/>
+![buffer_in_memory](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/buffer_in_memory.png)<br/><br/>
+通常情况下,我们都可以正常访问buffer1 里面的数据,假设往buffer1 里面读写数据的时候的时候一不小心就越过了buffer1 本来的长度到了buffer2 呢?<br/><br/>
+![read_write_out_of_buffer1](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_write_out_of_buffer1.png)<br/><br/>
 
-Exapmle 1 String 对象substr() 读取越界:<br/><br/>
-Exploit :<br/>
+Exapmle 1 -- String 对象substr() 读取越界:<br/><br/>
+**Exploit** :<br/>
 ```javascript
 var first_string='test string';
 var read_string='read me ...';
@@ -123,7 +123,7 @@ var read_string_data=first_string.substr(0x30,read_string.length());
 console.log('read_string_length:'+read_string_length);
 console.log('read_string_data:'+read_string_length);
 ```
-当用户声名一个String 类型的变量时,JavaScript 会申请堆内存来保存String 对象的数据<br/><br/>
+当用户声名一个String 类型的变量时,JavaScript 会申请堆内存来保存String 对象的数据<br/>
 ```javascript
 var string='test string';
 console.log(string);
@@ -159,7 +159,7 @@ var read_string='read me ...';
 var read_data=first_string.substr(0,4);
 console.log(read_data);
 ```
-现在到回到`javascript_function.cpp string_object_substr()` 里面设置断点,可以看到`memcpy()` 将要从`first_string` 保存数据的地址中开始复制数据<br/><br/>
+现在到回到`javascript_function.cpp string_object_substr()` 里面设置断点,可以看到`memcpy()` 将要从`first_string` 保存数据的地址中开始复制数据<br/>
 ![read_out_of_bound_memcpy_exploit](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_memcpy_exploit.png)<br/><br/>
 现在,可以这样计算,`read_string` 保存数据的地址为0xCEFD848 ,`first_string` 保存数据的地址为0xCEFD818 ,地址偏移了0x30 ,于是可以构造`first_string.substr(0x30,4);` 读取到`read_string` 里面的内容,继续观察`javascript_function.cpp string_object_substr()` 的执行情况<br/><br/>
 first_string 越界读写测试代码二:
