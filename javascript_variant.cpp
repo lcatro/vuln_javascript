@@ -148,7 +148,7 @@ bool get_variant_array(string variant_name,unsigned long array_index,void* outpu
         get_variant(variant_name,&array_class,&array_type);
         if (INT_ARRAY==array_type) {
             *(unsigned long*)output_variant_data=(unsigned long)((int_array*)array_class)->get_index(array_index);
-            *output_variant_type=NONE;
+            *output_variant_type=NUMBER;
         } else {
             javascript_variant_struct* array_index_object=(javascript_variant_struct*)((object_array*)array_class)->get_index(array_index);
             *(unsigned long*)output_variant_data=array_index_object->ulVal;

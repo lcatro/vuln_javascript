@@ -89,7 +89,7 @@ static bool new_int_array(function_argments& input_function_argments) {
         int_array* int_array_object=new (alloc_memory(sizeof(int_array))) int_array(argment_array_length);
         set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)int_array_object,INT_ARRAY);
     } else {  //  new IntArray(1,2,3,4,...);
-        int_array* int_array_class=new int_array(input_function_argments.size());
+        int_array* int_array_object=new (alloc_memory(sizeof(int_array))) int_array(input_function_argments.size());
         unsigned long init_array_index=0;
         for (function_argments::iterator function_argments_index=input_function_argments.begin();
                                          function_argments_index!=input_function_argments.end();
@@ -99,9 +99,9 @@ static bool new_int_array(function_argments& input_function_argments) {
             get_variant(*function_argments_index,(void*)&argment_array_data,&argment_array_data_type);
             if (NUMBER!=argment_array_data_type)
                 return false;
-            int_array_class->set_index(init_array_index++,(void*)argment_array_data);
+            int_array_object->set_index(init_array_index++,(void*)argment_array_data);
         }
-        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)int_array_class,INT_ARRAY);
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)int_array_object,INT_ARRAY);
     }
     return true;
 }

@@ -330,11 +330,28 @@ static bool execute_calculation_express(string& express) {
             return false;
         return true;
     }
-    if (is_exist_variant(express)) {
+    if (is_exist_variant(express)) {  //  test_var
         copy_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,express);
         return true;
+    } else if (INVALID_VALUE!=express.find('[') && INVALID_VALUE!=express.find(']')) {  //  test_array
+        unsigned long left_brcket_index=express.find('[');
+        unsigned long right_brcket_index=express.find(']');
+        string array_name(express.substr(0,left_brcket_index));
+        trim(array_name);
+        string array_index_string(express.substr(left_brcket_index+1,right_brcket_index-left_brcket_index-1));
+        trim(array_index_string);
+        if (!express_calcu(array_index_string))
+            return false;
+        unsigned long array_index=0;
+        support_javascript_variant_type array_index_type=NONE;
+        get_variant(JAVASCRIPT_VARIANT_KEYNAME_CALCULATION_RESULT,(void*)&array_index,&array_index_type);
+        unsigned long array_index_data=0;
+        support_javascript_variant_type array_index_data_type=NONE;
+        get_variant_array(array_name,array_index,(void*)&array_index_data,&array_index_data_type);
+        set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)array_index_data,array_index_data_type);
+        return true;
     }
-    return false;
+    return false;  //  TIPS ! all bug had been debug success ..
 }
 
 static bool execute_function_call(string& express) {

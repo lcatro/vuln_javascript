@@ -15,7 +15,7 @@ base_array::base_array(unsigned long init_length) {
     this->array_length=init_length;
     this->array_type_=BASE_ARRAY_CLASS;
     this->array_index=alloc_memory(4*init_length);
-    memset(&this->array_index,0,4*init_length);
+    memset(this->array_index,0,4*init_length);
 }
 
 base_array::~base_array() {
@@ -23,7 +23,7 @@ base_array::~base_array() {
 }
 
 void* base_array::get_index(unsigned long index) {
-    return (void*)((unsigned long*)(this->array_index)+index);
+    return (void*)*((unsigned long*)this->array_index+index);
 }
 
 void base_array::set_index(unsigned long index,void* index_data) {
@@ -49,21 +49,21 @@ int_array::int_array(unsigned long init_length) {
     this->array_length=init_length;
     this->array_type_=INT_ARRAY_CLASS;
     this->array_index=alloc_memory(4*init_length);
-    memset(&this->array_index,0,4*init_length);
+    memset(this->array_index,0,4*init_length);
 }
 
 object_array::object_array() {
     this->array_length=1;
     this->array_type_=OBJECT_ARRAY_CLASS;
     this->array_index=alloc_memory(sizeof(object_index));
-    memset(&this->array_index,0,sizeof(object_index));
+    memset(this->array_index,0,sizeof(object_index));
 }
 
 object_array::object_array(unsigned long init_length) {
     this->array_length=1;
     this->array_type_=OBJECT_ARRAY_CLASS;
     this->array_index=alloc_memory(sizeof(object_index)*init_length);
-    memset(&this->array_index,0,sizeof(object_index)*init_length);
+    memset(this->array_index,0,sizeof(object_index)*init_length);
 }
 
 void* object_array::get_index(unsigned long index) {
