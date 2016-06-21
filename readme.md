@@ -17,10 +17,15 @@
     element.remove();          删除元素
     element.getAttribute();    获取属性
     element.setAttribute();    设置属性
+    
+    支持的对像内部函数 :
+    string.substr(offest);     截取字符串
+    string.substr(offest,len); 截取字符串
+    string.length();           获取字符串长度
+    array.length();            获取数组长度
 
     支持的JavaScript 基本语句 :
     var var_name=expression;   变量声名
-    var_name.substr();         调用元素内部函数
     for (1;2;3) {code_block};  for 循环语句
     if {code_block} [else if {code_line;] [else {code_block}]            if 判断语句
     function function_name(function_argment_list) {function_code_block}  函数声名语句
