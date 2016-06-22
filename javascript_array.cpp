@@ -23,11 +23,13 @@ base_array::~base_array() {
 }
 
 void* base_array::get_index(unsigned long index) {
-    return (void*)*((unsigned long*)this->array_index+index);
+    unsigned long* read_address=((unsigned long*)this->array_index+index);
+    return (void*)*read_address;
 }
 
 void base_array::set_index(unsigned long index,void* index_data) {
-    *((unsigned long*)(this->array_index)+index)=(unsigned long)index_data;
+    unsigned long* write_address=((unsigned long*)this->array_index+index);
+    *write_address=(unsigned long)index_data;
 }
 
 unsigned long base_array::length(void) {

