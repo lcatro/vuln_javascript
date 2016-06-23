@@ -196,7 +196,7 @@ var read_array=new IntArray(1,2,3,4);
 
 console.log(first_array[0xA]);
 ```
-
+上面已经很清楚地述说了越界读取数据的原理,同样地,IntArray 整数数组的读写也存在越界,只不过接下来我们要利用写的方式来覆盖IntArray 原来的虚函数表,利用原理是构造一个指向到我们的Shellcode 的虚函数表来覆盖它,然后再调用指定的函数,控制代码流跳到Shellocode 中,详细的利用代码如下<br/><br/>
 **Exploit** 2 远程代码执行:
 ```javascript
 var write_array=new IntArray(4);
@@ -210,6 +210,9 @@ write_array[0xA]=read_exploit_virutal_table_array[0xD];
 exploit_array.length();
 
 ```
-int_array::int_array
+首先,通过`read_shellcode_address` 的越界读取漏洞把`shellcode` 中的保存数据的地址读取出来,然后存放到构造虚函数表中(`exploit_virutal_table`),接下来使用`read_exploit_virutal_table_array` 越界读取`exploit_virutal_table` 中储存数据的地址,把读取出来的地址通过`write_array` 越界写数据到`exploit_array` 的虚函数表地址中,使得`exploit_virutal_table` 中精心构造好的虚函数表覆盖掉原来`exploit_array IntArray 对象`的虚函数表,最后通过`exploit_array.length()` 触发`exploit_array 对象` 调用虚函数,从而控制程序最后执行到`shellcode` 变量中储存的二进制代码,以下为示意图:<br/><br/>
+![write_out_of_bound_exploit](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_exploit.png)<br/><br/>
+
+int_array::int_array<br/>
 
 TIPS! 所有的测试都在`Debug` 选项下的`Debug` 模式下进行..
