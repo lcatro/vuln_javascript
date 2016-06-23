@@ -188,7 +188,7 @@ console.log(read_data);
 然后再到`javascript_function.cpp string_object_substr()` 中观察`memcpy()` ,发现虚函数表已经复制到变量里面中去了<br/><br/>
 ![read_out_of_bound_read_object_virtual_table](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_read_object_virtual_table.png)<br/><br/>
 因为`substr()` 是以String 对象读取出来的,所以会输出的时候会显示错误<br/><br/>
-![read_out_of_bound_read_object_output](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_read_object_output.png)<br/><br/>
+![read_out_of_bound_read_object_output](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/read_out_of_bound_read_object_output.png)<br/><br/><br/><br/>
 
 Example 2 -- IntArray 数组越界读写<br/><br/>
 **Exploit** 1 获取IntArray 类基地址:
