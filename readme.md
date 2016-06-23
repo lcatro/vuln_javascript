@@ -99,6 +99,8 @@ Example 3 -- 简单的函数调用: <br/>
 
 ---
 
+####TIPS! 所有的测试都在`Debug` 选项下的`Debug` 模式下进行
+
 ####1.UaF 原理部分(Use after Free ,重复使用已经被释放了的类)<br/><br/>
 所有的HTML 元素在浏览器的内部都是一个类的实例.在`vuln_javascript` 中,所有关于HTML 元素的操作都在`javascript_element.cpp` 这个文件里面.img 和div 元素继承HTML 基础元素,同时HTML 基础元素类向下提供一些HTML 元素的通用函数实现方法(也就是`getAttribute()` ,`setAttribute()` 和`remove()`).<br/>
 Uaf 的原理是:**当HTML 元素调用了remove() 删除自身并且在堆中释放内存之后,在接下来的代码执行流程中再次调用已经被释放的类时,将会引发释放后重用的漏洞(Use after Free)**<br/><br/>
@@ -208,11 +210,28 @@ var shellcode='%ud231%u30b2%u8b64%u8b12%u0c52%u528b%u8b1c%u0842%u728b%u8b20%u801
 exploit_virutal_table[0x2]=read_shellcode_address[0x27];
 write_array[0xA]=read_exploit_virutal_table_array[0xD];
 exploit_array.length();
-
 ```
 首先,通过`read_shellcode_address` 的越界读取漏洞把`shellcode` 中的保存数据的地址读取出来,然后存放到构造虚函数表中(`exploit_virutal_table`),接下来使用`read_exploit_virutal_table_array` 越界读取`exploit_virutal_table` 中储存数据的地址,把读取出来的地址通过`write_array` 越界写数据到`exploit_array` 的虚函数表地址中,使得`exploit_virutal_table` 中精心构造好的虚函数表覆盖掉原来`exploit_array IntArray 对象`的虚函数表,最后通过`exploit_array.length()` 触发`exploit_array 对象` 调用虚函数,从而控制程序最后执行到`shellcode` 变量中储存的二进制代码,以下为示意图:<br/><br/>
 ![write_out_of_bound_exploit](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_exploit.png)<br/><br/>
+调试代码时,在`javascript_array.cpp base_array::get_index` 和`javascript_array.cpp base_array::set_index` 设置断点,观察4 次IntArray 数组在堆中读写数据的细节<br/><br/>
+由于`exploit_array` 和`exploit_virutal_table` 会初始化IntArray 数组的内容,所以开始的几次断点会中断到`javascript_array.cpp base_array::set_index` 中,当程序执在`javascript_array.cpp base_array::get_index` 处中断,意味着执行到`read_shellcode_address[0x27]` 的读取,从0xCCADA84 处读取到`shellcode` 的数据指针(**0x0CCAD9E8+0x27*0x4=0xCCADA84**)<br/><br/>
+![write_out_of_bound_read_shellcode](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_read_shellcode.png)<br/><br/>
+F9 执行到下一处断点,在`javascript_array.cpp base_array::set_index` 中断,此时执行到`exploit_virutal_table[0x2]` 的数据写入,把刚才读取到的虚函数表地址保存到数组中,内存空间如下<br/><br/>
+![write_out_of_bound_build_virtual_table](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_build_virtual_table.png)<br/><br/>
+继续F9 执行,在`javascript_array.cpp base_array::get_index` 中断,此时执行到`read_exploit_virutal_table_array[0xD]` 的越界读取,读取`exploit_virutal_table` 保存数据的地址(0x0CCAD908+0xD*0x4=0x0CCAD93C ,得到0x0CCAD978 也就是刚才构造好的`exploit_virutal_table` 的数据内容地址)<br/><br/>
+![write_out_of_bound_read_build_virtual_table_data_address](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_read_build_virtual_table_data_address.png)<br/><br/>
+继续F9 执行,在`javascript_array.cpp base_array::set_index` 中断,执行到`write_array[0xA]` 的越接写入,刚好把刚才读出来的地址写到`exploit_array` 的虚函数表地址里面<br/><br/>
+覆盖地址前:<br/>
+![write_out_of_bound_rewrite_exploit_array_virtual_table_before](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_rewrite_exploit_array_virtual_table_before.png)<br/>
+覆盖地址后:<br/>
+![write_out_of_bound_rewrite_exploit_array_virtual_table_after](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_rewrite_exploit_array_virtual_table_after.png)<br/><br/>
+最后一步就是调用`exploit_array` 的`length()` 引发虚函数的调用,现在到`javascript_function.cpp array_object_length() set_variant(JAVASCRIPT_VARIANT_KEYNAME_FUNCTION_RESULT,(void*)array_class->length(),NUMBER); ` 中设置断点,并且切换到汇编模式下调试(在代码窗口里面右键鼠标选择跳转到汇编).<br/><br/>
+**WARNING!**这里不小心重新启动了程序,地址会有变化,最后的部分主要是说明`exploit_array` 调用虚函数是如何根据我们构造的数据去走的<br/><br/>
+往下执行`mov eax,dword ptr [ebp-4]` 读取出`exploit_array` 的类地址<br/><br/>
+`mov edx,dword ptr [eax]` 读取出虚函数表地址,可见地址已经被写成0x0CF0D978 <br/><br/>
+![write_out_of_bound_exploit_array_detail1](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_exploit_array_detail1.png)<br/><br/>
+执行到`call dword ptr [edx+8]` ,从虚函数表里面读取虚函数`length()` 的地址,此时`length()` 地址已经被改写到0x0CF0DA88 <br/><br/>
+![write_out_of_bound_exploit_array_detail2](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_exploit_array_detail2.png)<br/><br/>
+所以接下来会执行`call 0x0CF0DA88` ,也就是执行`shellcode` 保存的数据<br/><br/>
+![write_out_of_bound_exploit_array_detail3](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_exploit_array_detail3.png)<br/><br/>
 
-int_array::int_array<br/>
-
-TIPS! 所有的测试都在`Debug` 选项下的`Debug` 模式下进行..
