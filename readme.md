@@ -218,7 +218,7 @@ exploit_array.length();
 ![write_out_of_bound_read_shellcode](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_read_shellcode.png)<br/><br/>
 F9 执行到下一处断点,在`javascript_array.cpp base_array::set_index` 中断,此时执行到`exploit_virutal_table[0x2]` 的数据写入,把刚才读取到的虚函数表地址保存到数组中,内存空间如下<br/><br/>
 ![write_out_of_bound_build_virtual_table](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_build_virtual_table.png)<br/><br/>
-继续F9 执行,在`javascript_array.cpp base_array::get_index` 中断,此时执行到`read_exploit_virutal_table_array[0xD]` 的越界读取,读取`exploit_virutal_table` 保存数据的地址(0x0CCAD908+0xD*0x4=0x0CCAD93C ,得到0x0CCAD978 也就是刚才构造好的`exploit_virutal_table` 的数据内容地址)<br/><br/>
+继续F9 执行,在`javascript_array.cpp base_array::get_index` 中断,此时执行到`read_exploit_virutal_table_array[0xD]` 的越界读取,读取`exploit_virutal_table` 保存数据的地址(0x0CCAD908+0xD\*0x4=0x0CCAD93C ,得到0x0CCAD978 也就是刚才构造好的`exploit_virutal_table` 的数据内容地址)<br/><br/>
 ![write_out_of_bound_read_build_virtual_table_data_address](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/write_out_of_bound_read_build_virtual_table_data_address.png)<br/><br/>
 继续F9 执行,在`javascript_array.cpp base_array::set_index` 中断,执行到`write_array[0xA]` 的越接写入,刚好把刚才读出来的地址写到`exploit_array` 的虚函数表地址里面<br/><br/>
 覆盖地址前:<br/>
