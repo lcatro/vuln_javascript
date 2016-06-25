@@ -139,24 +139,36 @@ void free_memory(void* alloc_buffer) {
 #endif
 }
 
-void conver_coding(char* input_string) {
-    unsigned long input_string_length=strlen(input_string);
+unsigned long conver_coding(char* input_string) {
+    unsigned long input_string_length=0;
+    if ((unsigned long)input_string==*(unsigned long*)(input_string-4))  //  check this is not string object ,because if your string conver %u0000%u1234 ,strlen() will get a error length ..
+        input_string_length=*(unsigned long*)(input_string-8);
+    else
+        input_string_length=strlen(input_string);
+
+    unsigned long return_new_length=0;
     for (unsigned long input_string_index=0;
                        input_string_index<input_string_length;
                        ++input_string_index) {
         if ('%'==input_string[input_string_index] &&
             'u'==input_string[input_string_index+1]) {
-            if (input_string_index+6<input_string_length) {
+            if (input_string_index+6<=input_string_length) {
                 char bit1_string[3]={input_string[input_string_index+2],input_string[input_string_index+3],0};
                 char bit2_string[3]={input_string[input_string_index+4],input_string[input_string_index+5],0};
                 char bit1=(char)hex_string_to_number(bit1_string);
                 char bit2=(char)hex_string_to_number(bit2_string);
                 input_string[input_string_index]=bit2;
                 input_string[input_string_index+1]=bit1;
-                memcpy(&input_string[input_string_index+2],&input_string[input_string_index+6],input_string_length-input_string_index-4+1);  //  +1 for \0
+                memcpy(&input_string[input_string_index+2],&input_string[input_string_index+6],input_string_length-input_string_index-6+1);  //  +1 for \0
             } else {
-                return;
+                return -1;
             }
+            return_new_length+=2;
+            input_string_length-=4;
+            ++input_string_index;
+        } else {
+            ++return_new_length;
         }
     }
+    return return_new_length;
 }
